@@ -12,6 +12,8 @@
     
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    @vite(['resources/js/app.js'])
 
     <script>
         tailwind.config = {
@@ -195,6 +197,8 @@
         btn.addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
     </script>
+    
+    @yield('page-scripts')
     @stack('scripts')
 </body>
 </html>

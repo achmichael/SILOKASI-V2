@@ -12,7 +12,7 @@ async function loadDecisionMakers() {
         if (dms.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="text-center py-8">
+                    <td colspan="4" class="text-center py-8">
                         <div class="empty-state">
                             <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -28,25 +28,25 @@ async function loadDecisionMakers() {
             
             tbody.innerHTML = dms.map((dm, index) => `
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white">${dm.name}</div>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-bold text-gray-900 dark:text-white">${dm.name}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${dm.role || dm.email || 'Stakeholder'}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900 dark:text-white">${dm.email || '-'}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center gap-2">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
                             <div class="flex-1">
                                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                    <div class="bg-primary-600 h-2 rounded-full" style="width: ${(dm.weight * 100).toFixed(0)}%"></div>
+                                    <div class="bg-primary-600 h-2 rounded-full transition-all" style="width: ${(dm.weight * 100).toFixed(0)}%"></div>
                                 </div>
                             </div>
-                            <span class="text-sm font-medium text-gray-900 dark:text-white">${parseFloat(dm.weight).toFixed(2)}</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white min-w-[3rem] text-right">${parseFloat(dm.weight).toFixed(2)}</span>
                         </div>
                     </td>
+                    <td class="px-6 py-4 text-center">
+                        ${dm.weight > 0 ? '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Active</span>' : '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-500 ring-1 ring-slate-600/20"><i data-lucide="circle" class="w-3 h-3"></i> Pending</span>'}
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center justify-center gap-2">
                             <button onclick="window.editDecisionMaker(${dm.id})" class="btn-icon btn-icon-warning">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -61,6 +61,9 @@ async function loadDecisionMakers() {
                     </td>
                 </tr>
             `).join('');
+            
+            // Re-initialize Lucide icons for the status badges
+            lucide.createIcons();
         } catch (error) {
             showError('Failed to load decision makers');
             console.error(error);
