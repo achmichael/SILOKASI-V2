@@ -1,52 +1,57 @@
-import { criteriaAPI, alternativeAPI, decisionMakerAPI, ratingAPI, showSuccess, showError, showLoading, closeLoading } from '../api.js';
+import { criteriaAPI, alternativeAPI, ratingAPI, authAPI, showSuccess, showError, showLoading, closeLoading } from '../api.js';
 
-let decisionMakers = [];
 let criteria = [];
 let alternatives = [];
 let ratings = {};
 let currentDMId = null;
+let currentUser = null;
+let currentDecisionMaker = null;
 
 async function loadData() {
     try {
-        const [dmRes, criteriaRes, altRes] = await Promise.all([
-            decisionMakerAPI.getAll(),
+        const [userRes, criteriaRes, altRes] = await Promise.all([
+            authAPI.getCurrentUser(),
             criteriaAPI.getAll(),
             alternativeAPI.getAll()
         ]);
 
-        decisionMakers = dmRes.data.data;
+        currentUser = userRes.data.data.user;
+        currentDecisionMaker = userRes.data.data.decision_maker;
         criteria = criteriaRes.data.data;
         alternatives = altRes.data.data;
 
-        if (decisionMakers.length === 0 || criteria.length === 0 || alternatives.length === 0) {
+        updateUserCard();
+
+        if (!currentDecisionMaker) {
+            showNoDecisionMakerState();
+            return;
+        }
+
+        currentDMId = currentDecisionMaker.id;
+
+        if (criteria.length === 0 || alternatives.length === 0) {
             showEmptyState();
             return;
         }
 
-        populateDMSelector();
-        
-        if (decisionMakers.length > 0) {
-            currentDMId = decisionMakers[0].id;
-            document.getElementById('dmSelector').value = currentDMId;
-            await loadRatingsForDM(currentDMId);
-        }
+        await loadRatingsForDM(currentDMId);
     } catch (error) {
-        showError('Failed to load data');
+        const isUnauthorized = error.response?.status === 401;
+        showError(isUnauthorized ? 'Please login to continue' : 'Failed to load data');
         console.error(error);
+        if (isUnauthorized) {
+            showUnauthorizedState();
+        }
     }
 }
 
 function showEmptyState() {
-    const dmSelector = document.getElementById('dmSelector');
     const container = document.getElementById('ratingsContainer');
-    
-    dmSelector.innerHTML = '<option value="">No decision makers found</option>';
-    
-    let messages = [];
-    if (decisionMakers.length === 0) messages.push('decision makers');
-    if (criteria.length === 0) messages.push('criteria');
-    if (alternatives.length === 0) messages.push('alternatives');
-    
+    const missingData = [];
+
+    if (criteria.length === 0) missingData.push('criteria');
+    if (alternatives.length === 0) missingData.push('alternatives');
+
     container.innerHTML = `
         <div class="card">
             <div class="card-body">
@@ -56,9 +61,8 @@ function showEmptyState() {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                         <p class="empty-state-text">Missing required data</p>
-                        <p class="empty-state-subtext">Please add ${messages.join(', ')} first</p>
+                        <p class="empty-state-subtext">Please add ${missingData.join(' and ')} first</p>
                         <div class="mt-4 flex gap-2 justify-center">
-                            ${decisionMakers.length === 0 ? '<a href="/decision-makers" class="btn btn-primary">Add Decision Makers</a>' : ''}
                             ${criteria.length === 0 ? '<a href="/criteria" class="btn btn-primary">Add Criteria</a>' : ''}
                             ${alternatives.length === 0 ? '<a href="/alternatives" class="btn btn-primary">Add Alternatives</a>' : ''}
                         </div>
@@ -67,13 +71,74 @@ function showEmptyState() {
             </div>
         </div>
     `;
+
+    toggleSaveButton(false);
 }
 
-function populateDMSelector() {
-    const selector = document.getElementById('dmSelector');
-    selector.innerHTML = decisionMakers.map(dm => `
-        <option value="${dm.id}">${dm.name} (Weight: ${(dm.weight * 100).toFixed(0)}%)</option>
-    `).join('');
+function showNoDecisionMakerState() {
+    const container = document.getElementById('ratingsContainer');
+    container.innerHTML = `
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center py-10">
+                    <svg class="w-12 h-12 mx-auto text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Decision Maker Profile Required</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2 max-w-2xl mx-auto">
+                        Your account is not linked to any decision maker profile yet. Please contact the administrator to configure your role so you can start rating alternatives.
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    toggleSaveButton(false);
+}
+
+function showUnauthorizedState() {
+    const container = document.getElementById('ratingsContainer');
+    container.innerHTML = `
+        <div class="card">
+            <div class="card-body text-center py-10">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Authentication Required</h3>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Please login to rate alternatives.</p>
+                <a href="/login" class="btn btn-primary mt-4">Go to Login</a>
+            </div>
+        </div>
+    `;
+
+    toggleSaveButton(false);
+}
+
+function updateUserCard() {
+    const nameEl = document.getElementById('dmName');
+    if (!nameEl) return;
+
+    nameEl.textContent = currentUser?.name || '-';
+    document.getElementById('dmEmail').textContent = currentUser?.email || '-';
+    document.getElementById('dmRole').textContent = currentDecisionMaker?.role || 'Role not assigned yet';
+
+    const weightPercent = currentDecisionMaker ? `${(currentDecisionMaker.weight * 100).toFixed(0)}%` : '0%';
+    document.getElementById('dmWeight').textContent = weightPercent;
+    document.getElementById('dmWeightHelper').textContent = currentDecisionMaker
+        ? `${Number(currentDecisionMaker.weight).toFixed(2)} of total influence`
+        : 'Awaiting weight assignment';
+
+    const statusBadge = document.getElementById('dmStatusBadge');
+    if (statusBadge) {
+        statusBadge.textContent = currentDecisionMaker ? 'Profile Linked' : 'Profile Missing';
+        statusBadge.className = currentDecisionMaker ? 'badge badge-success' : 'badge badge-warning';
+    }
+}
+
+function toggleSaveButton(isEnabled) {
+    const button = document.getElementById('btnSaveRatings');
+    if (!button) return;
+
+    button.disabled = !isEnabled;
+    button.classList.toggle('opacity-50', !isEnabled);
+    button.classList.toggle('cursor-not-allowed', !isEnabled);
 }
 
 async function loadRatingsForDM(dmId) {
@@ -162,6 +227,7 @@ function renderRatingsGrid() {
     `;
     
     container.innerHTML = html;
+    toggleSaveButton(true);
 }
 
 function updateRating(altId, critId, value) {
@@ -176,7 +242,7 @@ function updateRating(altId, critId, value) {
 
 async function saveRatings() {
     if (!currentDMId) {
-        showError('Please select a decision maker');
+        showError('Decision maker profile not found');
         return;
     }
 
@@ -196,14 +262,8 @@ async function saveRatings() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    toggleSaveButton(false);
     loadData();
-    
-    // DM Selector change
-    document.getElementById('dmSelector')?.addEventListener('change', (e) => {
-        currentDMId = parseInt(e.target.value);
-        loadRatingsForDM(currentDMId);
-    });
-    
     // Save button
     document.getElementById('btnSaveRatings')?.addEventListener('click', saveRatings);
 });

@@ -45,4 +45,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the decision maker associated with the user.
+     */
+    public function decisionMaker()
+    {
+        return $this->hasOne(DecisionMaker::class);
+    }
 }

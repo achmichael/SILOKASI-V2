@@ -1,6 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
+Route::middleware('auth')->prefix('api')->group(function () {
+    Route::get('/user/current', function (Request $request) {
+        $user = $request->user();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user' => $user,
+                'decision_maker' => $user?->decisionMaker,
+            ],
+        ]);
+    });
+});
 
 // Landing page
 Route::get('/', function () {

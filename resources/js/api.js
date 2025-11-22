@@ -99,6 +99,11 @@ export const calculationAPI = {
     getFinalRanking: () => api.get('/results/final-ranking')
 };
 
+// ============= AUTH API =============
+export const authAPI = {
+    getCurrentUser: () => api.get('/user/current')
+};
+
 // ============= HELPER FUNCTIONS =============
 export const showSuccess = (message) => {
     Swal.fire({
