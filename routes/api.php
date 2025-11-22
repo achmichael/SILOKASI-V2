@@ -20,6 +20,7 @@ use App\Http\Controllers\CalculationController;
 // Master Data Routes
 Route::prefix('criteria')->group(function () {
     Route::get('/', [CriteriaController::class, 'index']);
+    Route::get('/{id}', [CriteriaController::class, 'show']);
     Route::post('/', [CriteriaController::class, 'store']);
     Route::put('/{id}', [CriteriaController::class, 'update']);
     Route::delete('/{id}', [CriteriaController::class, 'destroy']);
@@ -27,6 +28,7 @@ Route::prefix('criteria')->group(function () {
 
 Route::prefix('alternatives')->group(function () {
     Route::get('/', [AlternativeController::class, 'index']);
+    Route::get('/{id}', [AlternativeController::class, 'show']);
     Route::post('/', [AlternativeController::class, 'store']);
     Route::put('/{id}', [AlternativeController::class, 'update']);
     Route::delete('/{id}', [AlternativeController::class, 'destroy']);

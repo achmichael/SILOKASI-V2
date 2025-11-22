@@ -78,8 +78,10 @@ function closeModal() {
 async function editCriteria(id) {
     try {
         const response = await criteriaAPI.getById(id);
+        console.log('response', response);
         const criteria = response.data.data;
-        
+    
+        document.getElementById('code').value = criteria.code || '';
         document.getElementById('name').value = criteria.name;
         document.getElementById('description').value = criteria.description || '';
         document.getElementById('type').value = criteria.type;
@@ -115,6 +117,7 @@ async function submitForm(e) {
     e.preventDefault();
     
     const formData = {
+        code: document.getElementById('code').value,
         name: document.getElementById('name').value,
         description: document.getElementById('description').value,
         type: document.getElementById('type').value

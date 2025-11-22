@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 // Landing page
 Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+    return view('landing');
+})->name('landing');
 
 // Dashboard
 Route::get('/dashboard', function () {

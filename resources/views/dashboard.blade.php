@@ -1,251 +1,174 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard - GDSS')
-@section('page-title', 'Dashboard')
+@section('title', 'Dashboard Overview')
+@section('page-title', 'Dashboard Overview')
+@section('page-subtitle', 'Monitor progress and quick access to decision tools')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Welcome Banner -->
-    <div class="card slide-in">
-        <div class="card-body">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                        Welcome to GDSS! 👋
-                    </h1>
-                    <p class="text-gray-600 dark:text-gray-400">
-                        Group Decision Support System menggunakan metode ANP-WP-BORDA untuk pemilihan lokasi perumahan
-                    </p>
-                </div>
-                <div class="hidden md:block">
-                    <svg class="w-24 h-24 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                </div>
+<div class="space-y-8">
+    
+    <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-10 text-white overflow-hidden shadow-xl">
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="max-w-2xl">
+                <h2 class="text-3xl font-bold mb-3">Decision Support System Ready 🚀</h2>
+                <p class="text-slate-300 text-lg leading-relaxed">
+                    Sistem siap digunakan. Saat ini menggunakan metode hibrida <span class="text-white font-semibold">ANP-WP-BORDA</span> untuk akurasi pemilihan lokasi yang maksimal.
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{{ route('pairwise.index') }}" class="bg-primary-600 hover:bg-primary-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-primary-900/50 flex items-center gap-2">
+                    <i data-lucide="play-circle" class="w-5 h-5"></i>
+                    Start Calculation
+                </a>
+            </div>
+        </div>
+        
+        <div class="absolute top-0 right-0 w-64 h-64 bg-primary-500/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl -ml-16 -mb-16"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-primary-200 transition-colors">
+            <div>
+                <p class="text-sm font-medium text-slate-500 mb-1">Total Criteria</p>
+                <h3 class="text-3xl font-bold text-slate-800" id="criteriaCount">0</h3>
+            </div>
+            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                <i data-lucide="sliders-horizontal" class="w-6 h-6"></i>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-emerald-200 transition-colors">
+            <div>
+                <p class="text-sm font-medium text-slate-500 mb-1">Total Alternatives</p>
+                <h3 class="text-3xl font-bold text-slate-800" id="alternativesCount">0</h3>
+            </div>
+            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+                <i data-lucide="map-pin" class="w-6 h-6"></i>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-violet-200 transition-colors">
+            <div>
+                <p class="text-sm font-medium text-slate-500 mb-1">Decision Makers</p>
+                <h3 class="text-3xl font-bold text-slate-800" id="dmCount">0</h3>
+            </div>
+            <div class="w-12 h-12 bg-violet-50 rounded-xl flex items-center justify-center text-violet-600 group-hover:scale-110 transition-transform">
+                <i data-lucide="users-2" class="w-6 h-6"></i>
             </div>
         </div>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Criteria Count -->
-        <div class="stat-card stat-card-blue slide-in" style="animation-delay: 0.1s">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-blue-100 text-sm font-medium">Total Criteria</p>
-                    <h3 id="criteriaCount" class="text-3xl font-bold mt-2">0</h3>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-8">
+            
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                        <i data-lucide="git-commit" class="w-5 h-5 text-slate-400"></i>
+                        Process Status
+                    </h3>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold uppercase tracking-wide">In Progress</span>
                 </div>
-                <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-            </div>
-        </div>
 
-        <!-- Alternatives Count -->
-        <div class="stat-card stat-card-green slide-in" style="animation-delay: 0.2s">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-green-100 text-sm font-medium">Total Alternatives</p>
-                    <h3 id="alternativesCount" class="text-3xl font-bold mt-2">0</h3>
-                </div>
-                <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-            </div>
-        </div>
+                <div class="relative flex justify-between">
+                    <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-100 -translate-y-1/2 rounded-full -z-10"></div>
+                    
+                    <div class="flex flex-col items-center gap-3 group cursor-pointer">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-200 ring-4 ring-white">
+                            <i data-lucide="check" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-600">Data Setup</span>
+                    </div>
 
-        <!-- Decision Makers Count -->
-        <div class="stat-card stat-card-purple slide-in" style="animation-delay: 0.3s">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-purple-100 text-sm font-medium">Decision Makers</p>
-                    <h3 id="dmCount" class="text-3xl font-bold mt-2">0</h3>
-                </div>
-                <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            </div>
-        </div>
+                    <div class="flex flex-col items-center gap-3 group cursor-pointer">
+                        <div class="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center shadow-lg shadow-primary-200 ring-4 ring-white animate-pulse">
+                            <span class="font-bold">2</span>
+                        </div>
+                        <span class="text-xs font-bold text-primary-700">AHP Matrix</span>
+                    </div>
 
-        <!-- Calculation Status -->
-        <div class="stat-card stat-card-orange slide-in" style="animation-delay: 0.4s">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-orange-100 text-sm font-medium">Calculation Status</p>
-                    <h3 id="calculationStatus" class="text-lg font-bold mt-2">Not Started</h3>
-                </div>
-                <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-            </div>
-        </div>
-    </div>
+                    <div class="flex flex-col items-center gap-3 group cursor-pointer opacity-50">
+                        <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-200 text-slate-400 flex items-center justify-center ring-4 ring-white">
+                            <span class="font-bold">3</span>
+                        </div>
+                        <span class="text-xs font-medium text-slate-500">ANP Network</span>
+                    </div>
 
-    <!-- Progress Steps -->
-    <div class="card slide-in" style="animation-delay: 0.5s">
-        <div class="card-header">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Workflow Progress</h2>
-        </div>
-        <div class="card-body">
-            <div class="step-indicator">
-                <!-- Step 1: Data Master -->
-                <div class="step">
-                    <div class="step-circle" id="step1">
-                        <span>1</span>
-                    </div>
-                    <div class="hidden md:block ml-3">
-                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Data Master</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Setup criteria & alternatives</p>
-                    </div>
-                </div>
-                <div class="step-line" id="line1"></div>
-
-                <!-- Step 2: AHP Matrix -->
-                <div class="step">
-                    <div class="step-circle pending" id="step2">
-                        <span>2</span>
-                    </div>
-                    <div class="hidden md:block ml-3">
-                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">AHP Matrix</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Pairwise comparison</p>
-                    </div>
-                </div>
-                <div class="step-line" id="line2"></div>
-
-                <!-- Step 3: ANP Matrix -->
-                <div class="step">
-                    <div class="step-circle pending" id="step3">
-                        <span>3</span>
-                    </div>
-                    <div class="hidden md:block ml-3">
-                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">ANP Matrix</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Interdependency</p>
-                    </div>
-                </div>
-                <div class="step-line" id="line3"></div>
-
-                <!-- Step 4: Ratings -->
-                <div class="step">
-                    <div class="step-circle pending" id="step4">
-                        <span>4</span>
-                    </div>
-                    <div class="hidden md:block ml-3">
-                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Ratings</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">DM evaluations</p>
-                    </div>
-                </div>
-                <div class="step-line" id="line4"></div>
-
-                <!-- Step 5: Results -->
-                <div class="step">
-                    <div class="step-circle pending" id="step5">
-                        <span>5</span>
-                    </div>
-                    <div class="hidden md:block ml-3">
-                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Results</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Final ranking</p>
+                    <div class="flex flex-col items-center gap-3 group cursor-pointer opacity-50">
+                        <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-200 text-slate-400 flex items-center justify-center ring-4 ring-white">
+                            <span class="font-bold">4</span>
+                        </div>
+                        <span class="text-xs font-medium text-slate-500">Results</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Quick Actions & Recent Results -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Quick Actions -->
-        <div class="card slide-in" style="animation-delay: 0.6s">
-            <div class="card-header">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Quick Actions</h2>
+            <h3 class="font-bold text-slate-800 mt-4">Quick Actions</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <a href="{{ route('criteria.index') }}" class="group p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-all hover:border-primary-200 flex flex-col gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-slate-700 block">Add Criteria</span>
+                        <span class="text-xs text-slate-500">Manage evaluation parameters</span>
+                    </div>
+                </a>
+
+                <a href="{{ route('alternatives.index') }}" class="group p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-all hover:border-emerald-200 flex flex-col gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-slate-700 block">Add Location</span>
+                        <span class="text-xs text-slate-500">Insert new alternative</span>
+                    </div>
+                </a>
             </div>
-            <div class="card-body">
-                <div class="space-y-3">
-                    <a href="{{ route('criteria.index') }}" class="flex items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all group">
-                        <div class="bg-blue-500 p-3 rounded-lg text-white mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">Manage Criteria</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Setup evaluation criteria</p>
-                        </div>
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
+        </div>
 
-                    <a href="{{ route('alternatives.index') }}" class="flex items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-all group">
-                        <div class="bg-green-500 p-3 rounded-lg text-white mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm h-full flex flex-col">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800">Top Candidates</h3>
+                    <a href="{{ route('results.index') }}" class="text-xs font-semibold text-primary-600 hover:text-primary-700">View All</a>
+                </div>
+                
+                <div class="p-6 flex-1 flex flex-col justify-center items-center text-center" id="rankingContainer">
+                    <div class="py-8">
+                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+                            <i data-lucide="bar-chart-3" class="w-10 h-10"></i>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400">Manage Alternatives</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Add housing locations</p>
-                        </div>
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-
-                    <a href="{{ route('pairwise.index') }}" class="flex items-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-all group">
-                        <div class="bg-purple-500 p-3 rounded-lg text-white mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">Start Calculation</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Begin AHP matrix input</p>
-                        </div>
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-
-                    <button id="btnCalculateAll" class="w-full flex items-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-all group">
-                        <div class="bg-orange-500 p-3 rounded-lg text-white mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                        </div>
-                        <div class="flex-1 text-left">
-                            <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400">Calculate All</h3>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Run full calculation</p>
-                        </div>
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
+                        <p class="text-slate-900 font-medium mb-1">No Rankings Yet</p>
+                        <p class="text-sm text-slate-500 max-w-[200px] mx-auto">
+                            Complete the calculation steps to generate the leaderboard.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl">
+                    <button class="w-full py-2.5 rounded-lg border border-slate-300 text-slate-600 font-semibold text-sm hover:bg-white hover:shadow-sm transition-all">
+                        Generate Report PDF
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Final Ranking Preview -->
-        <div class="card slide-in" style="animation-delay: 0.7s">
-            <div class="card-header flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Final Ranking</h2>
-                <a href="{{ route('results.index') }}" class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
-                    View Details →
-                </a>
-            </div>
-            <div class="card-body">
-                <div id="rankingContainer">
-                    <div class="empty-state">
-                        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        <h3 class="empty-state-title">No Results Yet</h3>
-                        <p class="empty-state-text">Complete the calculation process to see rankings</p>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection
 
-@section('page-scripts')
-@vite('resources/js/pages/dashboard.js')
-@endsection
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                // Anggap ini data dari database
+                document.getElementById('criteriaCount').innerText = '5';
+                document.getElementById('alternativesCount').innerText = '12';
+                document.getElementById('dmCount').innerText = '3';
+            }, 500);
+        });
+    </script>
+@endpush

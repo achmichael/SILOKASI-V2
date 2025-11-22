@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Criteria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CriteriaController extends Controller
 {
@@ -26,7 +27,7 @@ class CriteriaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|max:10|unique:criteria',
+            'code' => 'required|string|max:10|unique:criterias',
             'name' => 'required|string',
             'type' => 'required|in:benefit,cost',
         ]);
@@ -40,15 +41,27 @@ class CriteriaController extends Controller
         ], 201);
     }
 
+    public function show($id)
+    {
+        $criteria = Criteria::findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $criteria,
+        ]);
+    }
+
     /**
      * Update kriteria
      */
     public function update(Request $request, $id)
     {
         $criteria = Criteria::findOrFail($id);
-
+        Log::info('Updating criteria with ID: ' . $id);
+        Log::info('Request data: ', $request->all());
+        Log::info('criteria object: ', $criteria->toArray());
         $validated = $request->validate([
-            'code' => 'sometimes|string|max:10|unique:criteria,code,' . $id,
+            'code' => 'sometimes|string|max:10|unique:criterias,code,' . $id,
             'name' => 'sometimes|string',
             'type' => 'sometimes|in:benefit,cost',
         ]);
