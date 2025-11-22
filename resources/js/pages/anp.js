@@ -104,7 +104,7 @@ function renderMatrix() {
             if (i === j) {
                 html += `
                     <td class="px-4 py-3 text-center bg-gray-200 dark:bg-gray-700">
-                        <span class="text-sm font-bold text-gray-500 dark:text-gray-400">0</span>
+                        <span class="font-bold text-gray-500 dark:text-gray-400">0</span>
                     </td>
                 `;
             } else {
