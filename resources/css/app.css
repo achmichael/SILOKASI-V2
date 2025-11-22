@@ -1,0 +1,357 @@
+@import 'tailwindcss';
+
+/* Custom Styles for GDSS Application */
+
+/* Navigation Link Styles */
+.nav-link {
+    @apply flex items-center space-x-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 rounded-lg transition-all duration-200 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400;
+}
+
+.nav-link.active {
+    @apply bg-blue-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 font-medium;
+}
+
+/* Card Styles */
+.card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
+}
+
+.card-header {
+    @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
+}
+
+.card-body {
+    @apply p-6;
+}
+
+.card-footer {
+    @apply px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800;
+}
+
+/* Button Styles */
+.btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.btn-secondary {
+    @apply bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500;
+}
+
+.btn-success {
+    @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+}
+
+.btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+}
+
+/* Rating Badge Styles */
+.rating-badge {
+    @apply inline-block rounded font-bold;
+}
+
+.rating-1 {
+    @apply bg-red-500 text-white;
+}
+
+.rating-2 {
+    @apply bg-orange-500 text-white;
+}
+
+.rating-3 {
+    @apply bg-yellow-500 text-gray-900;
+}
+
+.rating-4 {
+    @apply bg-blue-500 text-white;
+}
+
+.rating-5 {
+    @apply bg-green-500 text-white;
+}
+
+.btn-warning {
+    @apply bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-400;
+}
+
+.btn-info {
+    @apply bg-cyan-600 text-white hover:bg-cyan-700 focus:ring-cyan-500;
+}
+
+.btn-outline {
+    @apply border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-gray-500;
+}
+
+.btn-sm {
+    @apply px-3 py-1.5 text-sm;
+}
+
+.btn-lg {
+    @apply px-6 py-3 text-lg;
+}
+
+/* Form Styles */
+.form-group {
+    @apply mb-4;
+}
+
+.form-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+}
+
+.form-input {
+    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all;
+}
+
+.form-input:disabled {
+    @apply bg-gray-100 dark:bg-gray-800 cursor-not-allowed;
+}
+
+.form-select {
+    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all;
+}
+
+.form-textarea {
+    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all resize-y;
+}
+
+.form-error {
+    @apply text-red-500 text-sm mt-1;
+}
+
+/* Table Styles */
+.table-container {
+    @apply overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700;
+}
+
+.table {
+    @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.table thead {
+    @apply bg-gray-50 dark:bg-gray-800;
+}
+
+.table th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider;
+}
+
+.table tbody {
+    @apply bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.table td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300;
+}
+
+.table tr:hover {
+    @apply bg-gray-50 dark:bg-gray-700;
+}
+
+/* Badge Styles */
+.badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300;
+}
+
+.badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300;
+}
+
+.badge-danger {
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300;
+}
+
+.badge-warning {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300;
+}
+
+.badge-info {
+    @apply bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300;
+}
+
+.badge-gray {
+    @apply bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
+}
+
+/* Alert Styles */
+.alert {
+    @apply p-4 rounded-lg border;
+}
+
+.alert-success {
+    @apply bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300;
+}
+
+.alert-error {
+    @apply bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300;
+}
+
+.alert-warning {
+    @apply bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300;
+}
+
+.alert-info {
+    @apply bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300;
+}
+
+/* Matrix Input Styles */
+.matrix-table {
+    @apply table-auto w-full border-collapse;
+}
+
+.matrix-table th,
+.matrix-table td {
+    @apply border border-gray-300 dark:border-gray-600 px-3 py-2;
+}
+
+.matrix-table th {
+    @apply bg-blue-50 dark:bg-blue-900/20 text-blue-900 dark:text-blue-300 font-semibold text-sm;
+}
+
+.matrix-table input {
+    @apply w-full px-2 py-1 text-center border-0 focus:ring-2 focus:ring-blue-500 rounded dark:bg-gray-700 dark:text-white;
+}
+
+.matrix-table .diagonal-cell {
+    @apply bg-gray-100 dark:bg-gray-800 cursor-not-allowed;
+}
+
+/* Stats Card */
+.stat-card {
+    @apply bg-linear-to-br rounded-xl p-6 text-white shadow-lg;
+}
+
+.stat-card-blue {
+    @apply from-blue-500 to-blue-600;
+}
+
+.stat-card-green {
+    @apply from-green-500 to-green-600;
+}
+
+.stat-card-purple {
+    @apply from-purple-500 to-purple-600;
+}
+
+.stat-card-orange {
+    @apply from-orange-500 to-orange-600;
+}
+
+.stat-card-red {
+    @apply from-red-500 to-red-600;
+}
+
+/* Loading Spinner */
+.spinner {
+    @apply inline-block w-6 h-6 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin;
+}
+
+/* Empty State */
+.empty-state {
+    @apply text-center py-12;
+}
+
+.empty-state-icon {
+    @apply mx-auto w-24 h-24 text-gray-400 mb-4;
+}
+
+.empty-state-title {
+    @apply text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2;
+}
+
+.empty-state-text {
+    @apply text-gray-500 dark:text-gray-400;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    @apply w-2 h-2;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* Animation Classes */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Progress Bar */
+.progress {
+    @apply w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2;
+}
+
+.progress-bar {
+    @apply bg-blue-600 h-2 rounded-full transition-all duration-300;
+}
+
+/* Step Indicator */
+.step-indicator {
+    @apply flex items-center justify-between mb-8;
+}
+
+.step {
+    @apply flex-1 flex items-center;
+}
+
+.step-circle {
+    @apply w-10 h-10 rounded-full flex items-center justify-center font-semibold border-2 transition-all;
+}
+
+.step-circle.active {
+    @apply bg-blue-600 border-blue-600 text-white;
+}
+
+.step-circle.completed {
+    @apply bg-green-500 border-green-500 text-white;
+}
+
+.step-circle.pending {
+    @apply bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400;
+}
+
+.step-line {
+    @apply flex-1 h-1 mx-2 bg-gray-200 dark:bg-gray-700;
+}
+
+.step-line.completed {
+    @apply bg-green-500;
+}
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
