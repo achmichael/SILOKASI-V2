@@ -14,7 +14,7 @@
         </div>
         
         <div class="flex items-center gap-3">
-            <button id="btnAdd" class="btn-primary flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg font-medium shadow-lg shadow-primary-600/20 transition-all hover:shadow-primary-600/40 hover:-translate-y-0.5">
+            <button id="btnAdd" class="btn-primary flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
                 <i data-lucide="user-plus" class="w-5 h-5"></i>
                 <span>Add Stakeholder</span>
             </button>
@@ -83,7 +83,7 @@
 
     <div class="fixed inset-0 z-10 overflow-y-auto">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modalPanel">
+            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" id="modalPanel">
                 
                 <div class="bg-white px-6 py-5 border-b border-slate-100 flex items-center justify-between">
                     <h3 class="text-lg font-bold text-slate-900" id="modalTitle">Add Decision Maker</h3>

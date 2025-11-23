@@ -186,39 +186,74 @@ async function loadTabData(tab) {
 function displayAHPResults(data, container) {
     const html = `
         <div class="space-y-6">
-            <div class="alert alert-success">
-                <strong>Consistency Ratio:</strong> ${data.consistency_ratio?.toFixed(4) || 'N/A'} 
-                ${data.consistency_ratio < 0.1 ? '✓ Consistent' : '✗ Inconsistent'}
+            <div class="p-5 rounded-xl border-l-4 ${
+                data.consistency_ratio < 0.1 
+                    ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500' 
+                    : 'bg-rose-50 dark:bg-rose-900/20 border-rose-500'
+            }">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 ${
+                        data.consistency_ratio < 0.1 
+                            ? 'text-emerald-600 dark:text-emerald-400' 
+                            : 'text-rose-600 dark:text-rose-400'
+                    }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <p class="font-bold text-gray-900 dark:text-white">Consistency Check</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            Consistency Ratio: <span class="font-mono font-semibold">${data.consistency_ratio?.toFixed(4) || 'N/A'}</span>
+                            <span class="ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                data.consistency_ratio < 0.1 
+                                    ? 'bg-emerald-100 dark:bg-emerald-800 text-emerald-700 dark:text-emerald-200' 
+                                    : 'bg-rose-100 dark:bg-rose-800 text-rose-700 dark:text-rose-200'
+                            }">
+                                ${data.consistency_ratio < 0.1 ? '✓ Consistent' : '✗ Inconsistent'}
+                            </span>
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <h3 class="text-lg font-semibold mb-3">Criteria Weights</h3>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Criteria Weights
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                             <tr>
-                                <th>Code</th>
-                                <th>Criteria</th>
-                                <th>Weight</th>
-                                <th>Percentage</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Criteria</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Weight</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Percentage</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             ${data.criteria?.map(c => `
-                                <tr>
-                                    <td><span class="badge badge-primary">${c.code}</span></td>
-                                    <td>${c.name}</td>
-                                    <td>${c.weight.toFixed(4)}</td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <div class="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
-                                                <div class="progress-bar" style="width: ${(c.weight * 100).toFixed(0)}%"></div>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                            ${c.code}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">${c.name}</td>
+                                    <td class="px-6 py-4 text-sm font-mono font-semibold text-gray-700 dark:text-gray-300">${c.weight.toFixed(4)}</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 max-w-xs">
+                                                <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: ${(c.weight * 100).toFixed(0)}%"></div>
                                             </div>
-                                            <span class="text-sm">${(c.weight * 100).toFixed(1)}%</span>
+                                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300 min-w-[3rem]">${(c.weight * 100).toFixed(1)}%</span>
                                         </div>
                                     </td>
                                 </tr>
-                            `).join('') || '<tr><td colspan="4">No data</td></tr>'}
+                            `).join('') || '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No data available</td></tr>'}
                         </tbody>
                     </table>
                 </div>
@@ -231,31 +266,52 @@ function displayAHPResults(data, container) {
 function displayANPResults(data, container) {
     const html = `
         <div class="space-y-6">
-            <div class="alert alert-info">
-                ANP weights calculated by multiplying AHP weights with interdependency matrix
+            <div class="p-5 rounded-xl border-l-4 bg-blue-50 dark:bg-blue-900/20 border-blue-500">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <p class="font-bold text-gray-900 dark:text-white">ANP Calculation Method</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            ANP weights calculated by multiplying AHP weights with interdependency matrix
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <h3 class="text-lg font-semibold mb-3">ANP Weights</h3>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                        </svg>
+                        ANP Weights Comparison
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                             <tr>
-                                <th>Code</th>
-                                <th>Criteria</th>
-                                <th>AHP Weight</th>
-                                <th>ANP Weight</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Criteria</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">AHP Weight</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">ANP Weight</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             ${data.criteria?.map(c => `
-                                <tr>
-                                    <td><span class="badge badge-primary">${c.code}</span></td>
-                                    <td>${c.name}</td>
-                                    <td>${c.ahp_weight?.toFixed(4) || '-'}</td>
-                                    <td class="font-semibold">${c.anp_weight?.toFixed(4) || '-'}</td>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
+                                            ${c.code}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">${c.name}</td>
+                                    <td class="px-6 py-4 text-sm font-mono text-gray-600 dark:text-gray-400">${c.ahp_weight?.toFixed(4) || '-'}</td>
+                                    <td class="px-6 py-4 text-sm font-mono font-bold text-purple-600 dark:text-purple-400">${c.anp_weight?.toFixed(4) || '-'}</td>
                                 </tr>
-                            `).join('') || '<tr><td colspan="4">No data</td></tr>'}
+                            `).join('') || '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No data available</td></tr>'}
                         </tbody>
                     </table>
                 </div>
@@ -268,35 +324,62 @@ function displayANPResults(data, container) {
 function displayWPResults(data, container) {
     const html = `
         <div class="space-y-6">
-            <div>
-                <h3 class="text-lg font-semibold mb-3">Weighted Product Results</h3>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Weighted Product Results
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                             <tr>
-                                <th>Rank</th>
-                                <th>Code</th>
-                                <th>Alternative</th>
-                                <th>Vector S</th>
-                                <th>Vector V (Preference Score)</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rank</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Alternative</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vector S</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Preference Score</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             ${data.alternatives_by_rank?.map((alt, index) => `
-                                <tr>
-                                    <td>
-                                        <span class="badge ${
-                                            index === 0 ? 'badge-success' :
-                                            index < 3 ? 'badge-info' :
-                                            'badge-gray'
-                                        }">${alt.rank}</span>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${
+                                    index === 0 ? 'bg-yellow-50/50 dark:bg-yellow-900/10' : ''
+                                }">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            ${index < 3 ? `
+                                                <svg class="w-5 h-5 ${
+                                                    index === 0 ? 'text-yellow-500' :
+                                                    index === 1 ? 'text-gray-400' :
+                                                    'text-orange-400'
+                                                }" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                                </svg>
+                                            ` : ''}
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+                                                index === 0 ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300' :
+                                                index === 1 ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300' :
+                                                index === 2 ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300' :
+                                                'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                                            }">
+                                                #${alt.rank}
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td><span class="badge badge-primary">${alt.code}</span></td>
-                                    <td class="font-medium">${alt.name}</td>
-                                    <td>${alt.vector_s?.toFixed(4) || '-'}</td>
-                                    <td class="font-semibold text-blue-600 dark:text-blue-400">${alt.preference_score?.toFixed(4) || alt.vector_v?.toFixed(4) || '-'}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                                            ${alt.code}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">${alt.name}</td>
+                                    <td class="px-6 py-4 text-sm font-mono text-gray-600 dark:text-gray-400">${alt.vector_s?.toFixed(4) || '-'}</td>
+                                    <td class="px-6 py-4 text-sm font-mono font-bold text-green-600 dark:text-green-400">${alt.preference_score?.toFixed(4) || alt.vector_v?.toFixed(4) || '-'}</td>
                                 </tr>
-                            `).join('') || '<tr><td colspan="5">No data</td></tr>'}
+                            `).join('') || '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No data available</td></tr>'}
                         </tbody>
                     </table>
                 </div>
@@ -309,51 +392,106 @@ function displayWPResults(data, container) {
 function displayBORDAResults(data, container) {
     const html = `
         <div class="space-y-6">
-            <div>
-                <h3 class="text-lg font-semibold mb-3">BORDA Aggregation Results</h3>
-                ${data.alternatives?.map(alt => `
-                    <div class="card mb-4">
-                        <div class="card-header">
+            <div class="p-5 rounded-xl border-l-4 bg-indigo-50 dark:bg-indigo-900/20 border-indigo-500">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <div>
+                        <p class="font-bold text-gray-900 dark:text-white">BORDA Aggregation Method</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-300">
+                            Final ranking aggregated from all decision makers using weighted BORDA count
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                ${data.alternatives?.map((alt, index) => `
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border-2 ${
+                        index === 0 ? 'border-yellow-400 dark:border-yellow-500 shadow-lg shadow-yellow-500/20' :
+                        index === 1 ? 'border-gray-400 dark:border-gray-500 shadow-md' :
+                        index === 2 ? 'border-orange-400 dark:border-orange-500 shadow-md' :
+                        'border-gray-200 dark:border-gray-700'
+                    } overflow-hidden transition-all duration-300 hover:shadow-xl">
+                        <div class="p-6 ${
+                            index === 0 ? 'bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20' :
+                            'bg-gray-50 dark:bg-gray-800/50'
+                        }">
                             <div class="flex items-center justify-between">
-                                <div>
-                                    <h4 class="font-bold text-lg">${alt.code} - ${alt.name}</h4>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Final Rank: ${alt.rank}</p>
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center justify-center w-16 h-16 rounded-full ${
+                                        index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                                        index === 1 ? 'bg-gray-400 text-gray-900' :
+                                        index === 2 ? 'bg-orange-400 text-orange-900' :
+                                        'bg-blue-500 text-white'
+                                    } font-bold text-2xl shadow-lg">
+                                        ${index < 3 ? ['🥇', '🥈', '🥉'][index] : `#${alt.rank}`}
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
+                                                ${alt.code}
+                                            </span>
+                                            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">Rank #${alt.rank}</span>
+                                        </div>
+                                        <h4 class="font-bold text-xl text-gray-900 dark:text-white">${alt.name}</h4>
+                                    </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">${alt.borda_score?.toFixed(2)}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">BORDA Score</p>
+                                    <p class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                        ${alt.borda_score?.toFixed(2)}
+                                    </p>
+                                    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-1">BORDA Score</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <h5 class="font-semibold mb-2">Decision Maker Contributions:</h5>
-                            <div class="table-container">
-                                <table class="table">
-                                    <thead>
+                        
+                        <div class="p-6 border-t border-gray-200 dark:border-gray-700">
+                            <h5 class="font-bold text-sm text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                Decision Maker Contributions
+                            </h5>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                                         <tr>
-                                            <th>DM</th>
-                                            <th>Weight</th>
-                                            <th>Vector V</th>
-                                            <th>WP Rank</th>
-                                            <th>Borda Points</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Decision Maker</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Weight</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Vector V</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">WP Rank</th>
+                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Borda Points</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                         ${alt.decision_makers_detail?.map(dm => `
-                                            <tr>
-                                                <td>${dm.dm_name}</td>
-                                                <td>${(dm.dm_weight * 100).toFixed(0)}%</td>
-                                                <td class="font-semibold">${dm.vector_v?.toFixed(4) || '-'}</td>
-                                                <td>${dm.ranking}</td>
-                                                <td><span class="badge badge-success">${dm.borda_points}</span></td>
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                                <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">${dm.dm_name}</td>
+                                                <td class="px-4 py-3 text-sm">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                                            <div class="bg-indigo-500 h-2 rounded-full" style="width: ${(dm.dm_weight * 100).toFixed(0)}%"></div>
+                                                        </div>
+                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">${(dm.dm_weight * 100).toFixed(0)}%</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm font-mono font-semibold text-gray-700 dark:text-gray-300">${dm.vector_v?.toFixed(4) || '-'}</td>
+                                                <td class="px-4 py-3 text-sm font-bold text-purple-600 dark:text-purple-400">#${dm.ranking}</td>
+                                                <td class="px-4 py-3">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300">
+                                                        ${dm.borda_points} pts
+                                                    </span>
+                                                </td>
                                             </tr>
-                                        `).join('') || '<tr><td colspan="5">No details</td></tr>'}
+                                        `).join('') || '<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No details available</td></tr>'}
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                `).join('') || '<p>No data available</p>'}
+                `).join('') || '<div class="text-center py-8 text-gray-500 dark:text-gray-400">No data available</div>'}
             </div>
         </div>
     `;
