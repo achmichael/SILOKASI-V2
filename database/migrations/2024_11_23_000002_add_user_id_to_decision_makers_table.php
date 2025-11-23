@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('decision_makers', function (Blueprint $table) {
-            $table->foreignId('user_id')->nullable()->after('id')->constrained()->onDelete('cascade');
-            $table->string('role')->nullable()->after('name');
+            if (!Schema::hasColumn('decision_makers', 'user_id')) {
+                $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade')->after('id');
+            }
         });
     }
 
@@ -24,7 +25,7 @@ return new class extends Migration
     {
         Schema::table('decision_makers', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
-            $table->dropColumn(['user_id', 'role']);
+            $table->dropColumn('user_id');
         });
     }
 };

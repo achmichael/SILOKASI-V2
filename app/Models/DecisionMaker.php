@@ -12,8 +12,11 @@ class DecisionMaker extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'role',
         'weight',
+    ];
+
+    protected $casts = [
+        'weight' => 'decimal:2',
     ];
 
     public function user()
@@ -24,5 +27,10 @@ class DecisionMaker extends Model
     public function bordaPoints()
     {
         return $this->hasMany(BordaPoint::class);
+    }
+
+    public function alternativeRatings()
+    {
+        return $this->hasMany(AlternativeRating::class);
     }
 }
