@@ -67,7 +67,7 @@
             <div class="relative z-10">
                 <div class="flex items-center space-x-3 text-white/90">
                     <span class="text-xs font-bold tracking-[0.2em] uppercase">Bergabung</span>
-                    <div class="h-[1px] w-12 bg-white/50"></div>
+                    <div class="h-px w-12 bg-white/50"></div>
                 </div>
             </div>
 
