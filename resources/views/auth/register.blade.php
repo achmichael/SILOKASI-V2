@@ -52,13 +52,11 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center">
-
     <div class="w-full bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-slate-100">
-        
         <div class="relative w-full lg:w-[45%] bg-black flex flex-col justify-between p-10 lg:p-14 overflow-hidden order-first">
             
             <div class="absolute inset-0 z-0">
-                <img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop" 
+                <img src="https://images.unsplash.com/photo-1587325889132-2c9e393e7d70?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8dG93bnxlbnwwfHwwfHx8MA%3D%3D" 
                      alt="Abstract Background" 
                      class="w-full h-full object-cover opacity-90 mix-blend-screen hover:scale-105 transition-transform duration-[20s]">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80"></div>

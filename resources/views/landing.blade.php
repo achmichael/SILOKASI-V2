@@ -127,17 +127,7 @@
         <div class="absolute inset-0 glass shadow-sm"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="flex justify-between items-center h-20">
-                <div class="flex items-center gap-2 cursor-pointer group">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-r from-brand-500 to-accent-500 blur rounded-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
-                        <div class="relative bg-white p-2 rounded-lg border border-slate-100">
-                            <i data-lucide="map-pin" class="w-6 h-6 text-brand-600"></i>
-                        </div>
-                    </div>
-                    <span class="text-xl font-bold text-slate-800 tracking-tight group-hover:text-brand-600 transition-colors">
-                        SILOKASI
-                    </span>
-                </div>
+                <img src="/logo.png" alt="" class="h-12 w-auto object-cover">
 
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#features" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Features</a>
