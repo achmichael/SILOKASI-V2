@@ -26,7 +26,7 @@ Route::prefix('auth')->group(function () {
     Route::get('me', [AuthController::class, 'me']);
 });
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware(['auth:api', 'jwt.verify'])->group(function () {
     Route::prefix('criteria')->group(function () {
         Route::get('/', [CriteriaController::class, 'index']);
         Route::get('/{id}', [CriteriaController::class, 'show']);
