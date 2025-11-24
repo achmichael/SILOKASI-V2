@@ -23,8 +23,8 @@
                     },
                     colors: {
                         brand: {
-                            black: '#0f172a', // Hitam elegan untuk tombol
-                            gray: '#f3f4f6',  // Abu-abu untuk input
+                            black: '#0f172a',
+                            gray: '#f3f4f6',
                         }
                     }
                 }
@@ -33,6 +33,7 @@
     </script>
     
     <style>
+        /* Minimalist Input Style */
         .input-minimal {
             background-color: #f3f4f6; /* Gray-100 */
             border: 1px solid transparent;
@@ -44,21 +45,16 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             outline: none;
         }
-        /* Custom Scrollbar hide */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        
+        /* Hide Scrollbar but keep functionality */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="h-full flex items-center justify-center">
+<body class="min-h-screen flex items-center justify-center">
 
-    <div class="w-full bg-white overflow-hidden flex flex-col lg:flex-row border border-slate-100">
-        
-        <div class="relative w-full lg:w-[48%] bg-black flex flex-col justify-between p-10 lg:p-14 overflow-hidden">
+    <div class="w-full bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-slate-100">
+        <div class="relative w-full lg:w-[45%] bg-black flex flex-col justify-between p-10 lg:p-14 overflow-hidden order-first">
             
             <div class="absolute inset-0 z-0">
                 <img src="https://images.unsplash.com/photo-1761850648640-2ee5870ee883?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8" 
@@ -83,26 +79,37 @@
                 <p class="text-white/70 text-sm font-light max-w-sm leading-relaxed">
                     SILOKASI membantu Anda mendapatkan keputusan lokasi terbaik dengan metode ilmiah dan data akurat. Percayakan prosesnya pada kami.
                 </p>
+                
+                <div class="mt-8 space-y-3 text-white/80 text-sm font-light">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                        <span>Metode ANP & Weighted Product</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                        <span>Analisis Multi-Kriteria Akurat</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="w-full lg:w-[55%] bg-white flex flex-col justify-center items-center p-8 lg:p-20 relative">
+        <div class="w-full lg:w-[55%] bg-white flex flex-col justify-center items-center p-8 lg:p-20 relative overflow-y-auto max-h-[100vh] no-scrollbar">
             
-            <div class="w-full max-w-md space-y-8">
+            <div class="w-full max-w-lg space-y-8">
                 
-                <div class="flex items-center justify-center space-x-2 mb-8">
-                    <i data-lucide="map-pin" class="w-6 h-6 text-slate-900"></i>
-                    <span class="text-xl font-bold font-serif tracking-tight text-slate-900">SILOKASI</span>
+                <div class="lg:hidden flex items-center justify-center mb-6">
+                    <img src="/images/light_logo.png" alt="SILOKASI Logo" class="h-12 w-auto object-cover mr-2">
+                    <span class="font-serif font-bold text-xl">SILOKASI</span>
                 </div>
 
-                <div class="text-center space-y-2">
-                    <h2 class="text-4xl font-serif text-slate-900">Welcome Back</h2>
+                <div class="text-center lg:text-left space-y-2">
+                    <h2 class="text-3xl lg:text-4xl font-serif text-slate-900">Welcome Back</h2>
                     <p class="text-slate-400 text-sm">Masukan detail akun anda untuk mengakses dashboard</p>
                 </div>
 
                 <div id="alert-container"></div>
 
-                <form id="loginForm" class="space-y-5 mt-8">
+                <form id="loginForm" class="space-y-6">
                     
                     <div class="space-y-1">
                         <label for="email" class="block text-xs font-semibold text-slate-600 uppercase tracking-wide ml-1">Email</label>
@@ -134,7 +141,7 @@
                     <button type="submit" id="loginButton" 
                         class="w-full bg-black hover:bg-slate-800 text-white font-medium py-4 rounded-xl transition-all duration-300 shadow-lg shadow-black/20 hover:shadow-black/30 transform hover:-translate-y-1">
                         <span id="loginButtonText">Sign In</span>
-                        <span id="loginButtonLoader" class="hidden flex items-center justify-center">
+                        <span id="loginButtonLoader" class="hidden items-center justify-center">
                             <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -154,7 +161,7 @@
                     </button>
                 </form>
 
-                <div class="text-center mt-8">
+                <div class="text-center mt-6">
                     <p class="text-slate-500 text-sm">
                         Belum punya akun? 
                         <a href="/register" class="text-black font-bold hover:underline">Sign Up</a>
@@ -190,12 +197,16 @@
                 : 'bg-red-50 text-red-600 border-red-200';
                 
             alertContainer.innerHTML = `
-                <div class="p-3 rounded-lg text-sm border ${colors} flex items-center animate-pulse">
-                    <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="w-4 h-4 mr-2"></i>
+                <div class="p-4 rounded-xl text-sm border ${colors} flex items-center animate-pulse mb-6">
+                    <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="w-5 h-5 mr-3"></i>
                     ${message}
                 </div>
             `;
             lucide.createIcons();
+            
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
         }
 
         // Form Submit Handler
@@ -209,6 +220,7 @@
             btn.disabled = true;
             text.classList.add('hidden');
             loader.classList.remove('hidden');
+            loader.classList.add('flex');
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -235,12 +247,14 @@
                     btn.disabled = false;
                     text.classList.remove('hidden');
                     loader.classList.add('hidden');
+                    loader.classList.remove('flex');
                 }
             } catch (error) {
                 showAlert('Terjadi kesalahan sistem.');
                 btn.disabled = false;
                 text.classList.remove('hidden');
                 loader.classList.add('hidden');
+                loader.classList.remove('flex');
             }
         });
     </script>

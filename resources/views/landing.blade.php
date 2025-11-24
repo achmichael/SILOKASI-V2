@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -18,7 +18,8 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
                     },
                     colors: {
                         brand: {
@@ -127,7 +128,17 @@
         <div class="absolute inset-0 glass shadow-sm"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="flex justify-between items-center h-20">
-                <img src="/images/light_logo.png" alt="" class="h-20 w-auto object-cover">
+                <div class="flex items-center group cursor-pointer">
+                    <img src="/images/light_logo.png" alt="SILOKASI Logo" class="h-20 w-auto object-cover">
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-black tracking-tight text-gradient font-display">
+                            SILOKASI
+                        </span>
+                        <span class="text-[10px] font-semibold text-slate-400 tracking-widest uppercase -mt-1">
+                            Decision Intelligence
+                        </span>
+                    </div>
+                </div>
 
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#features" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Features</a>
@@ -177,7 +188,7 @@
                     New Generation GDSS
                 </div>
                 
-                <h1 class="text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight animate-fade-up" style="animation-delay: 100ms;">
+                <h1 class="text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight animate-fade-up font-display" style="animation-delay: 100ms;">
                     Smarter Locations, <br/>
                     <span class="text-gradient">Better Decisions.</span>
                 </h1>
