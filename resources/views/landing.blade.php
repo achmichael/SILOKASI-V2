@@ -127,7 +127,7 @@
         <div class="absolute inset-0 glass shadow-sm"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="flex justify-between items-center h-20">
-                <img src="/logo.png" alt="" class="h-12 w-auto object-cover">
+                <img src="/images/light_logo.png" alt="" class="h-20 w-auto object-cover">
 
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#features" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors">Features</a>
@@ -136,10 +136,10 @@
                     
                     <div class="w-px h-6 bg-slate-200"></div>
                     
-                    <a href="" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors">
+                    <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors">
                         Log In
                     </a>
-                    <a href="" class="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 bg-slate-900 rounded-full hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
+                    <a href="{{ route('register') }}" class="group relative inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 bg-slate-900 rounded-full hover:bg-slate-800 hover:shadow-lg hover:shadow-slate-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
                         Get Started
                         <i data-lucide="arrow-right" class="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1"></i>
                     </a>

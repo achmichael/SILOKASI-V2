@@ -58,7 +58,6 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-600 antialiased">
-    
     <div class="flex h-screen overflow-hidden">
         <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
             <div class="h-20 flex items-center px-8 border-b border-slate-100">
