@@ -51,11 +51,10 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center">
+<body class="h-screen flex items-center">
 
-    <div class="w-full bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-slate-100">
-        <div class="relative w-full lg:w-[45%] bg-black flex flex-col justify-between p-10 lg:p-14 overflow-hidden order-first">
-            
+    <div class="w-full h-full shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-slate-100">
+        <div class="relative w-full lg:w-[45%] flex flex-col justify-between p-10 lg:p-14 overflow-hidden order-first">
             <div class="absolute inset-0 z-0">
                 <img src="https://images.unsplash.com/photo-1761850648640-2ee5870ee883?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8" 
                      alt="Abstract Fluid Background" 

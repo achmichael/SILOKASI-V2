@@ -51,8 +51,8 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center">
-    <div class="w-full bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-slate-100">
+<body class="h-screen flex items-center justify-center">
+    <div class="h-full w-full bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row border border-slate-100">
         <div class="relative w-full lg:w-[45%] bg-black flex flex-col justify-between p-10 lg:p-14 overflow-hidden order-first">
             
             <div class="absolute inset-0 z-0">
