@@ -174,7 +174,21 @@ async function saveMatrix() {
     try {
         showLoading('Saving ANP interdependency matrix...');
         
-        await anpAPI.saveMatrix(interdependencyMatrix);
+        // Convert object to 2D array
+        const n = criteria.length;
+        const matrixArray = [];
+        
+        for (let i = 0; i < n; i++) {
+            const row = [];
+            for (let j = 0; j < n; j++) {
+                const key = `${criteria[i].id}_${criteria[j].id}`;
+                const val = interdependencyMatrix[key] || 0;
+                row.push(val);
+            }
+            matrixArray.push(row);
+        }
+
+        await anpAPI.saveMatrix(matrixArray);
         
         closeLoading();
         showSuccess('Matrix saved successfully!');
