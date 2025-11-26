@@ -11,20 +11,6 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-Route::middleware('auth')->prefix('api')->group(function () {
-    Route::get('/user/current', function (Request $request) {
-        $user = $request->user();
-
-        return response()->json([
-            'success' => true,
-            'data'    => [
-                'user'           => $user,
-                'decision_maker' => $user?->decisionMaker,
-            ],
-        ]);
-    });
-});
-
 Route::get('/', function () {
     return view('landing');
 })->name('landing');

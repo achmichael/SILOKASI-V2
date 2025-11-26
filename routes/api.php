@@ -28,6 +28,19 @@ Route::middleware('web')->prefix('auth')->group(function () {
 });
 
 Route::middleware(['auth:api', 'jwt.verify'])->group(function () {
+    Route::get('/user/current', function (Request $request) {
+        $user = $request->user();
+        $user->load('decisionMaker');
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'user'           => $user,
+                'decision_maker' => $user->decisionMaker,
+            ],
+        ]);
+    });
+
     Route::prefix('criteria')->group(function () {
         Route::get('/', [CriteriaController::class, 'index']);
         Route::get('/{id}', [CriteriaController::class, 'show']);

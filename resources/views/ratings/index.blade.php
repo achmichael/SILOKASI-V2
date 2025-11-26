@@ -96,7 +96,7 @@
             </div>
         </div>
 
-        <div class="lg:col-span-8">
+        <div class="lg:col-span-8" id="ratingsContainer">
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col relative min-h-[400px]">
                 
                 <div id="matrixOverlay" class="absolute inset-0 z-20 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl transition-opacity duration-500">

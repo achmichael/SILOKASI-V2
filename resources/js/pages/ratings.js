@@ -53,8 +53,8 @@ function showEmptyState() {
     if (alternatives.length === 0) missingData.push('alternatives');
 
     container.innerHTML = `
-        <div class="card">
-            <div class="card-body">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div class="p-6">
                 <div class="text-center py-8">
                     <div class="empty-state">
                         <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,8 +78,8 @@ function showEmptyState() {
 function showNoDecisionMakerState() {
     const container = document.getElementById('ratingsContainer');
     container.innerHTML = `
-        <div class="card">
-            <div class="card-body">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div class="p-6">
                 <div class="text-center py-10">
                     <svg class="w-12 h-12 mx-auto text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -117,13 +117,29 @@ function updateUserCard() {
 
     nameEl.textContent = currentUser?.name || '-';
     document.getElementById('dmEmail').textContent = currentUser?.email || '-';
-    document.getElementById('dmRole').textContent = currentDecisionMaker?.role || 'Role not assigned yet';
+    
+    const roleEl = document.getElementById('dmRole');
+    if (roleEl) {
+        roleEl.textContent = currentDecisionMaker?.role || 'Role not assigned yet';
+    }
 
     const weightPercent = currentDecisionMaker ? `${(currentDecisionMaker.weight * 100).toFixed(0)}%` : '0%';
-    document.getElementById('dmWeight').textContent = weightPercent;
-    document.getElementById('dmWeightHelper').textContent = currentDecisionMaker
-        ? `${Number(currentDecisionMaker.weight).toFixed(2)} of total influence`
-        : 'Awaiting weight assignment';
+    const weightEl = document.getElementById('dmWeight');
+    if (weightEl) {
+        weightEl.textContent = weightPercent;
+    }
+    
+    const weightHelper = document.getElementById('dmWeightHelper');
+    if (weightHelper) {
+        weightHelper.textContent = currentDecisionMaker
+            ? `${Number(currentDecisionMaker.weight).toFixed(2)} of total influence`
+            : 'Awaiting weight assignment';
+    }
+
+    const weightBar = document.getElementById('dmWeightBar');
+    if (weightBar) {
+        weightBar.style.width = weightPercent;
+    }
 
     const statusBadge = document.getElementById('dmStatusBadge');
     if (statusBadge) {
@@ -177,8 +193,8 @@ function renderRatingsGrid() {
     let html = `
         <div class="grid grid-cols-1 gap-6">
             ${alternatives.map(alt => `
-                <div class="card">
-                    <div class="card-header">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${alt.name}</h3>
@@ -187,7 +203,7 @@ function renderRatingsGrid() {
                             <span class="badge badge-primary">Alternative</span>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             ${criteria.map(crit => {
                                 const key = `${alt.id}_${crit.id}`;
@@ -207,7 +223,7 @@ function renderRatingsGrid() {
                                                 max="5" 
                                                 step="1" 
                                                 value="${value}"
-                                                class="flex-1"
+                                                class="flex-1 w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
                                                 data-alt="${alt.id}" 
                                                 data-crit="${crit.id}"
                                                 oninput="window.updateRating(${alt.id}, ${crit.id}, this.value)"
