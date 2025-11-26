@@ -4,10 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\PairwiseComparison;
 use App\Models\Criteria;
+use App\Services\AhpService;
 use Illuminate\Http\Request;
 
 class PairwiseComparisonController extends Controller
 {
+    protected $ahpService;
+
+    public function __construct(AhpService $ahpService)
+    {
+        $this->ahpService = $ahpService;
+    }
+
     /**
      * Tampilkan semua perbandingan berpasangan
      */
@@ -84,9 +92,18 @@ class PairwiseComparisonController extends Controller
             }
         }
 
+        // Calculate consistency immediately
+        $calculationResult = $this->ahpService->calculateAHP($matrix);
+
         return response()->json([
             'success' => true,
             'message' => 'Pairwise comparison matrix saved successfully',
+            'data' => [
+                'consistency_ratio' => $calculationResult['cr'],
+                'consistency_index' => $calculationResult['ci'],
+                'random_index' => $calculationResult['ri'],
+                'is_consistent' => $calculationResult['is_consistent'],
+            ]
         ], 201);
     }
 }

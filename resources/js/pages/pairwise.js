@@ -157,7 +157,29 @@ async function saveMatrix() {
     try {
         showLoading('Saving pairwise comparison matrix...');
         
-        const response = await pairwiseAPI.saveMatrix(pairwiseMatrix);
+        // Convert object to 2D array
+        const n = criteria.length;
+        const matrixArray = [];
+        
+        for (let i = 0; i < n; i++) {
+            const row = [];
+            for (let j = 0; j < n; j++) {
+                if (i === j) {
+                    row.push(1);
+                } else if (i < j) {
+                    // Upper triangle: get from pairwiseMatrix or default to 1
+                    const val = pairwiseMatrix[`${criteria[i].id}_${criteria[j].id}`] || 1;
+                    row.push(val);
+                } else {
+                    // Lower triangle: reciprocal of the upper triangle value
+                    const val = pairwiseMatrix[`${criteria[j].id}_${criteria[i].id}`] || 1;
+                    row.push(1 / val);
+                }
+            }
+            matrixArray.push(row);
+        }
+
+        const response = await pairwiseAPI.saveMatrix(matrixArray);
         
         closeLoading();
         showSuccess('Matrix saved successfully!');
@@ -174,32 +196,62 @@ async function saveMatrix() {
 }
 
 function displayConsistencyResults(data) {
-    const card = document.getElementById('consistencyCard');
-    const crCard = document.getElementById('crCard');
-    const alert = document.getElementById('consistencyAlert');
+    const placeholder = document.getElementById('consistencyPlaceholder');
+    const resultContainer = document.getElementById('consistencyResult');
     
-    card.classList.remove('hidden');
+    // Toggle visibility
+    if (placeholder) placeholder.classList.add('hidden');
+    if (resultContainer) resultContainer.classList.remove('hidden');
     
-    document.getElementById('ciValue').textContent = data.consistency_index?.toFixed(4) || '-';
-    document.getElementById('riValue').textContent = data.random_index?.toFixed(4) || '-';
-    document.getElementById('crValue').textContent = data.consistency_ratio?.toFixed(4) || '-';
+    // Update values
+    const ciEl = document.getElementById('ciValue');
+    const riEl = document.getElementById('riValue');
+    const crEl = document.getElementById('crValue');
+
+    if (ciEl) ciEl.textContent = data.consistency_index?.toFixed(4) || '-';
+    if (riEl) riEl.textContent = data.random_index?.toFixed(4) || '-';
+    if (crEl) crEl.textContent = data.consistency_ratio?.toFixed(4) || '-';
     
     const cr = data.consistency_ratio || 0;
     const isConsistent = cr < 0.1;
     
-    // Update CR card color
-    crCard.className = `stat-card ${isConsistent ? 'stat-card-green' : 'stat-card-red'}`;
+    // Update Badge
+    const crBadge = document.getElementById('crBadge');
+    if (crBadge) {
+        crBadge.textContent = isConsistent ? 'Valid' : 'Invalid';
+        crBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${isConsistent ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`;
+    }
+
+    // Update Message
+    const crMessage = document.getElementById('crMessage');
+    if (crMessage) {
+        crMessage.textContent = isConsistent 
+            ? 'The matrix is consistent (CR < 0.1).' 
+            : 'The matrix is inconsistent (CR ≥ 0.1). Please revise.';
+        crMessage.className = `text-sm mt-2 ${isConsistent ? 'text-emerald-600' : 'text-rose-600'}`;
+    }
+
+    // Update Progress Bar
+    const crProgressBar = document.getElementById('crProgressBar');
+    if (crProgressBar) {
+        // Map CR to percentage (0.1 is threshold, say 50%)
+        // Let's say 0.2 is 100%
+        let percentage = (cr / 0.2) * 100;
+        if (percentage > 100) percentage = 100;
+        
+        crProgressBar.style.width = `${percentage}%`;
+        crProgressBar.className = `h-full transition-all duration-1000 ${isConsistent ? 'bg-emerald-500' : 'bg-rose-500'}`;
+    }
     
-    // Update status
-    const statusEl = document.getElementById('crStatus');
-    statusEl.textContent = isConsistent ? '✓ Consistent' : '✗ Inconsistent';
-    
-    // Show alert
-    alert.classList.remove('hidden', 'alert-success', 'alert-warning');
-    alert.classList.add(isConsistent ? 'alert-success' : 'alert-warning');
-    alert.querySelector('p').innerHTML = isConsistent 
-        ? '<strong>Good!</strong> Your pairwise comparison matrix is consistent (CR < 0.10). You can proceed to the next step.'
-        : '<strong>Warning!</strong> Your pairwise comparison matrix is inconsistent (CR ≥ 0.10). Please review your comparisons to ensure logical consistency.';
+    // Update Alert Box
+    const alertBox = document.getElementById('alertBox');
+    if (alertBox) {
+        if (isConsistent) {
+            alertBox.classList.add('hidden');
+        } else {
+            alertBox.classList.remove('hidden');
+        }
+    }
 }
 
 // Initialize when DOM is ready
