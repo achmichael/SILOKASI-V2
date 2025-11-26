@@ -11,6 +11,7 @@ use App\Http\Controllers\AlternativeRatingController;
 use App\Http\Controllers\DecisionMakerController;
 use App\Http\Controllers\BordaPointController;
 use App\Http\Controllers\CalculationController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,8 @@ Route::middleware(['auth:api', 'jwt.verify'])->group(function () {
             ],
         ]);
     });
+
+    Route::post('/profile/update', [ProfileController::class, 'update']);
 
     Route::prefix('criteria')->group(function () {
         Route::get('/', [CriteriaController::class, 'index']);

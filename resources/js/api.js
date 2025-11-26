@@ -352,6 +352,15 @@ export const authAPI = {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         }),
+    updateProfile: (data) =>
+        api.post("/profile/update", data, {
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }),
 };
 
 // ============= HELPER FUNCTIONS =============
@@ -374,10 +383,10 @@ export const showError = (message) => {
     });
 };
 
-export const showLoading = () => {
+export const showLoading = (message = "Mohon tunggu sebentar") => {
     Swal.fire({
         title: "Loading...",
-        text: "Mohon tunggu sebentar",
+        text: message,
         allowOutsideClick: false,
         allowEscapeKey: false,
         didOpen: () => {

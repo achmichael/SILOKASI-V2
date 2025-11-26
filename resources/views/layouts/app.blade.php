@@ -97,6 +97,11 @@
                         <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                         <span>Dashboard</span>
                     </a>
+                    <a href="{{ route('profile') }}"
+                        class="nav-item flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors {{ request()->routeIs('profile') ? 'active' : 'text-slate-600' }}">
+                        <i data-lucide="user-circle" class="w-5 h-5"></i>
+                        <span>My Profile</span>
+                    </a>
                 </div>
 
                 @if (Auth::check() && Auth::user()->role === 'admin')

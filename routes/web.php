@@ -20,6 +20,10 @@ Route::middleware('')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
+    Route::get('/profile', function () {
+        return view('profile.index');
+    })->name('profile');
+
     Route::prefix('criteria')->name('criteria.')->group(function () {
         Route::get('/', function () {
             return view('criteria.index');
