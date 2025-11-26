@@ -120,7 +120,7 @@ function updateUserCard() {
     
     const roleEl = document.getElementById('dmRole');
     if (roleEl) {
-        roleEl.textContent = currentDecisionMaker?.role || 'Role not assigned yet';
+        roleEl.textContent = currentUser?.role.replace('_', ' ') || 'Role not assigned yet';
     }
 
     const weightPercent = currentDecisionMaker ? `${(currentDecisionMaker.weight * 100).toFixed(0)}%` : '0%';
