@@ -18,7 +18,8 @@ use App\Http\Controllers\CalculationController;
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('auth')->group(function () {
+// activate web middleware for supporting session management
+Route::middleware('web')->prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\DecisionMaker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +65,9 @@ class AuthController extends Controller
             DB::commit();
 
             $token = JWTAuth::fromUser($user);
+            
+            // Also login to web session for Blade templates
+            Auth::guard('web')->login($user);
 
             return response()->json([
                 'success' => true,
@@ -114,6 +118,9 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // Also login to web session for Blade templates
+        Auth::guard('web')->attempt($credentials);
+
         return $this->respondWithToken($token);
     }
 
@@ -141,6 +148,9 @@ class AuthController extends Controller
     public function logout()
     {
         auth('api')->logout();
+        
+        // Also logout from web session
+        Auth::guard('web')->logout();
 
         return response()->json([
             'success' => true,
