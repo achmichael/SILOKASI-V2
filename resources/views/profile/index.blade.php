@@ -137,26 +137,6 @@
                             </div>
                         </div>
 
-                        <!-- Decision Maker Section (Conditional) -->
-                        <div id="dmSection" class="hidden">
-                            <h4 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">Decision Maker Settings</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="space-y-2">
-                                    <label for="weight" class="text-sm font-medium text-slate-700">
-                                        Voting Weight (0.0 - 1.0)
-                                        <span class="text-xs text-slate-400 font-normal ml-1">(Influence power)</span>
-                                    </label>
-                                    <div class="relative">
-                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <i data-lucide="scale" class="h-4 w-4 text-slate-400"></i>
-                                        </div>
-                                        <input type="number" id="weight" name="weight" step="0.01" min="0" max="1" class="pl-10 w-full rounded-lg border-slate-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm" placeholder="0.5">
-                                    </div>
-                                    <p class="text-xs text-slate-500">Higher value means more influence in the final decision.</p>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Security Section -->
                         <div>
                             <h4 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100">Security</h4>

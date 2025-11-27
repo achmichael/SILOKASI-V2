@@ -42,17 +42,6 @@ function renderProfile() {
     // Update Form Values
     document.getElementById('name').value = currentUser.name;
     document.getElementById('email').value = currentUser.email;
-
-    // Show/Hide DM Section
-    const dmSection = document.getElementById('dmSection');
-    if (currentUser.role === 'decision_maker') {
-        dmSection.classList.remove('hidden');
-        if (currentDecisionMaker) {
-            document.getElementById('weight').value = currentDecisionMaker.weight;
-        }
-    } else {
-        dmSection.classList.add('hidden');
-    }
 }
 
 function checkDecisionMakerStatus() {
@@ -98,7 +87,6 @@ async function saveProfile() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const passwordConfirmation = document.getElementById('password_confirmation').value;
-    const weight = document.getElementById('weight').value;
 
     // Basic Validation
     if (password && password !== passwordConfirmation) {
@@ -112,10 +100,6 @@ async function saveProfile() {
         password,
         password_confirmation: passwordConfirmation
     };
-
-    if (currentUser.role === 'decision_maker') {
-        payload.weight = weight;
-    }
 
     try {
         showLoading('Saving changes...');

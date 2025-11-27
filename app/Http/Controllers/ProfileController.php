@@ -21,7 +21,6 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'weight' => 'nullable|numeric|min:0|max:1',
         ]);
 
         if ($validator->fails()) {
@@ -46,16 +45,13 @@ class ProfileController extends Controller
 
             if ($decisionMaker) {
                 $decisionMaker->name = $request->name; // Sync name
-                if ($request->has('weight')) {
-                    $decisionMaker->weight = $request->weight;
-                }
                 $decisionMaker->save();
             } else {
                 // Create if not exists (though it should ideally exist)
                 DecisionMaker::create([
                     'user_id' => $user->id,
                     'name' => $request->name,
-                    'weight' => $request->weight ?? 0, // Default weight if creating new
+                    'weight' => 0, // Default weight if creating new
                 ]);
             }
         }
