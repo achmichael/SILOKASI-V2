@@ -238,7 +238,7 @@
                 password: document.getElementById('password').value,
                 password_confirmation: document.getElementById('password_confirmation').value,
                 // Default Role (Jika backend butuh, sesuaikan nilai ini, misal: 'user' atau 'admin')
-                // role: 'user' 
+                role: 'decision_maker' 
             };
             
             // Client-side Validation

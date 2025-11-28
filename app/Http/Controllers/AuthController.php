@@ -32,7 +32,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,decision_maker',
-            'weight' => 'required_if:role,decision_maker|nullable|numeric|min:0|max:1',
+            // 'weight' => 'required_if:role,decision_maker|nullable|numeric|min:0|max:1',
         ]);
 
         if ($validator->fails()) {

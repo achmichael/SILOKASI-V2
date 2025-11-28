@@ -101,13 +101,13 @@ function renderMatrix() {
             const value = interdependencyMatrix[key] || 0;
             rowSum += parseFloat(value);
             
-            if (i === j) {
-                html += `
-                    <td class="px-4 py-3 text-center bg-gray-200 dark:bg-gray-700">
-                        <span class="font-bold text-gray-500 dark:text-gray-400">0</span>
-                    </td>
-                `;
-            } else {
+            // if (i === j) {
+            //     html += `
+            //         <td class="px-4 py-3 text-center bg-gray-200 dark:bg-gray-700">
+            //             <span class="font-bold text-gray-500 dark:text-gray-400">0</span>
+            //         </td>
+            //     `;
+            // } else {
                 html += `
                     <td class="px-4 py-3 text-center">
                         <input 
@@ -123,7 +123,7 @@ function renderMatrix() {
                         />
                     </td>
                 `;
-            }
+            // }
         }
         
         html += `
