@@ -38,10 +38,15 @@ async function loadCriteria() {
 async function loadExistingMatrix() {
     try {
         const response = await anpAPI.getMatrix();
-        const data = response.data.data;
+        const existingData = response.data.data;
         
-        if (data && data.matrix) {
-            interdependencyMatrix = data.matrix;
+        if (Array.isArray(existingData) && existingData.length > 0) {
+            
+            existingData.forEach(item => {
+                const val = parseFloat(item.value);
+                const key = `${item.criteria_i}_${item.criteria_j}`;
+                interdependencyMatrix[key] = val;
+            });
         }
     } catch (error) {
         // No existing matrix, initialize empty

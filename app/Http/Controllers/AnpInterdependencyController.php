@@ -24,8 +24,7 @@ class AnpInterdependencyController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
         $userId = $user->id;
-        $interdependencies = AnpInterdependency::with(['criteriaI', 'criteriaJ'])
-            ->where('user_id', $userId)
+        $interdependencies = AnpInterdependency::where('user_id', $userId)
             ->get();
         
         return response()->json([
