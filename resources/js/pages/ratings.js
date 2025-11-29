@@ -1,5 +1,6 @@
-import { criteriaAPI, alternativeAPI, ratingAPI, authAPI, showSuccess, showError, showLoading, closeLoading } from '../api.js';
+import { ratingAPI, authAPI, showSuccess, showError, showLoading, closeLoading } from '../api.js';
 
+// Variable Global
 let criteria = [];
 let alternatives = [];
 let ratings = {};
@@ -8,16 +9,33 @@ let currentUser = null;
 
 async function loadData() {
     try {
-        const [userRes, criteriaRes, altRes] = await Promise.all([
+        // 1. Cukup panggil API User dan Ratings saja
+        const [userRes, ratingRes] = await Promise.all([
             authAPI.getCurrentUser(),
-            criteriaAPI.getAll(),
-            alternativeAPI.getAll()
+            // Asumsi: Anda memanggil rating berdasarkan user yang sedang login atau endpoint umum
+            // Jika user belum login, authAPI biasanya handle error duluan.
+            // Kita perlu ID user untuk fetch rating, jadi logic-nya sedikit diubah:
+            authAPI.getCurrentUser().then(res => {
+                const user = res.data.data.user;
+                if (user && user.role === 'decision_maker') {
+                    // Chain request: dapat user dulu, baru ambil rating
+                    return ratingAPI.getRatingsByDM(user.id).then(r => ({ user, ratings: r }));
+                }
+                return { user, ratings: null };
+            })
         ]);
 
-        currentUser = userRes.data.data.user;
-        criteria = criteriaRes.data.data;
-        alternatives = altRes.data.data;
-
+        // Note: Implementasi Promise di atas sedikit kompleks untuk handle dependency. 
+        // Cara lebih sederhana (sequential) seringkali lebih aman untuk logic auth -> data:
+        
+        /* REVISI LOGIC FETCH:
+           Kita ambil User dulu, baru ambil Ratings. 
+           Karena kita butuh ID user untuk ambil rating (kecuali API rating otomatis detect user dari token).
+        */
+       
+        // Step 1: Get User
+        const userResponse = await authAPI.getCurrentUser();
+        currentUser = userResponse.data.data.user;
         updateUserCard();
 
         if (!currentUser || currentUser.role !== 'decision_maker') {
@@ -27,12 +45,23 @@ async function loadData() {
 
         currentDMId = currentUser.id;
 
-        if (criteria.length === 0 || alternatives.length === 0) {
-            showEmptyState();
+        // Step 2: Get Ratings (yang berisi data kriteria & alternatif)
+        const ratingResponse = await ratingAPI.getRatingsByDM(currentDMId);
+        const ratingsData = ratingResponse.data.data;
+
+        // Step 3: Proses Data (Ekstraksi Kriteria & Alternatif dari JSON Rating)
+        if (!ratingsData || ratingsData.length === 0) {
+            // Edge case: Jika belum ada data rating sama sekali, kita tidak bisa 
+            // mengekstrak kriteria/alternatif. Di kasus ini, UI akan kosong.
+            showEmptyState(); 
             return;
         }
 
-        await loadRatingsForDM(currentDMId);
+        processResponseData(ratingsData);
+        
+        // Step 4: Render
+        renderRatingsGrid();
+
     } catch (error) {
         const isUnauthorized = error.response?.status === 401;
         showError(isUnauthorized ? 'Please login to continue' : 'Failed to load data');
@@ -43,33 +72,46 @@ async function loadData() {
     }
 }
 
+/**
+ * Fungsi Utama: Mengekstrak Criteria dan Alternatives unik dari response Ratings
+ */
+function processResponseData(data) {
+    const tempCriteria = new Map();
+    const tempAlternatives = new Map();
+    ratings = {}; // Reset ratings
+
+    data.forEach(item => {
+        // 1. Ambil Alternative Unik
+        if (item.alternative && !tempAlternatives.has(item.alternative.id)) {
+            tempAlternatives.set(item.alternative.id, item.alternative);
+        }
+
+        // 2. Ambil Criteria Unik
+        if (item.criteria && !tempCriteria.has(item.criteria.id)) {
+            tempCriteria.set(item.criteria.id, item.criteria);
+        }
+
+        // 3. Mapping Rating
+        // Format Key: "alternativeId_criteriaId"
+        const key = `${item.alternative_id}_${item.criteria_id}`;
+        ratings[key] = item.rating;
+    });
+
+    // 4. Konversi Map ke Array dan Sort berdasarkan ID agar urutan konsisten
+    criteria = Array.from(tempCriteria.values()).sort((a, b) => a.id - b.id);
+    alternatives = Array.from(tempAlternatives.values()).sort((a, b) => a.id - b.id);
+}
+
 function showEmptyState() {
     const container = document.getElementById('ratingsContainer');
-    const missingData = [];
-
-    if (criteria.length === 0) missingData.push('criteria');
-    if (alternatives.length === 0) missingData.push('alternatives');
-
     container.innerHTML = `
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
-            <div class="p-6">
-                <div class="text-center py-8">
-                    <div class="empty-state">
-                        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        <p class="empty-state-text">Missing required data</p>
-                        <p class="empty-state-subtext">Please add ${missingData.join(' and ')} first</p>
-                        <div class="mt-4 flex gap-2 justify-center">
-                            ${criteria.length === 0 ? '<a href="/criteria" class="btn btn-primary">Add Criteria</a>' : ''}
-                            ${alternatives.length === 0 ? '<a href="/alternatives" class="btn btn-primary">Add Alternatives</a>' : ''}
-                        </div>
-                    </div>
-                </div>
+            <div class="p-6 text-center py-8">
+                <p class="text-gray-500">No rating data found to extract Criteria and Alternatives.</p>
+                <p class="text-sm text-gray-400">Please ensure the backend has initialized data.</p>
             </div>
         </div>
     `;
-
     toggleSaveButton(false);
 }
 
@@ -79,18 +121,12 @@ function showNoDecisionMakerState() {
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm">
             <div class="p-6">
                 <div class="text-center py-10">
-                    <svg class="w-12 h-12 mx-auto text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Decision Maker Role Required</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2 max-w-2xl mx-auto">
-                        Your account does not have decision maker role. Please contact the administrator to update your role so you can start rating alternatives.
-                    </p>
+                    <h3 class="mt-4 text-lg font-semibold text-gray-900">Decision Maker Role Required</h3>
+                    <p class="text-gray-600 mt-2">Your account does not have decision maker role.</p>
                 </div>
             </div>
         </div>
     `;
-
     toggleSaveButton(false);
 }
 
@@ -99,13 +135,11 @@ function showUnauthorizedState() {
     container.innerHTML = `
         <div class="card">
             <div class="card-body text-center py-10">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Authentication Required</h3>
-                <p class="text-gray-600 dark:text-gray-400 mt-2">Please login to rate alternatives.</p>
+                <h3 class="text-lg font-semibold">Authentication Required</h3>
                 <a href="/login" class="btn btn-primary mt-4">Go to Login</a>
             </div>
         </div>
     `;
-
     toggleSaveButton(false);
 }
 
@@ -113,17 +147,11 @@ function updateUserCard() {
     const nameEl = document.getElementById('dmName');
     if (!nameEl) return;
 
-    // Hide loading indicator
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    if (loadingIndicator) {
-        loadingIndicator.style.display = 'none';
-    }
+    document.getElementById('loadingIndicator')?.style.setProperty('display', 'none');
 
-    // Update user details
     nameEl.textContent = currentUser?.name || '-';
     document.getElementById('dmEmail').textContent = currentUser?.email || '-';
     
-    // Update avatar
     const avatarEl = document.getElementById('dmAvatar');
     if (avatarEl && currentUser?.name) {
         const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
@@ -134,8 +162,7 @@ function updateUserCard() {
     
     const roleEl = document.getElementById('dmRole');
     if (roleEl) {
-        const roleText = currentUser?.role === 'decision_maker' ? 'Decision Maker' : 'Admin';
-        roleEl.textContent = roleText;
+        roleEl.textContent = currentUser?.role === 'decision_maker' ? 'Decision Maker' : 'Admin';
     }
 
     const statusBadge = document.getElementById('dmStatusBadge');
@@ -145,7 +172,6 @@ function updateUserCard() {
         statusBadge.className = isDecisionMaker ? 'badge badge-success' : 'badge badge-warning';
     }
 
-    // Remove opacity and show card content
     const dmDetails = document.getElementById('dmDetails');
     if (dmDetails) {
         dmDetails.classList.remove('opacity-50');
@@ -162,39 +188,15 @@ function toggleSaveButton(isEnabled) {
     button.classList.toggle('cursor-not-allowed', !isEnabled);
 }
 
-async function loadRatingsForDM(dmId) {
-    try {
-        const response = await ratingAPI.getRatingsByDM(dmId);
-        const data = response.data.data;
-        
-        if (data && data.ratings) {
-            ratings = data.ratings;
-        } else {
-            initializeRatings();
-        }
-        
-        renderRatingsGrid();
-    } catch (error) {
-        // No existing ratings, initialize empty
-        console.log('No existing ratings found, initializing new ones');
-        initializeRatings();
-        renderRatingsGrid();
-    }
-}
-
-function initializeRatings() {
-    ratings = {};
-    for (let alt of alternatives) {
-        for (let crit of criteria) {
-            const key = `${alt.id}_${crit.id}`;
-            ratings[key] = 3; // Default to fair rating
-        }
-    }
-}
-
 function renderRatingsGrid() {
     const container = document.getElementById('ratingsContainer');
     
+    // Safety check
+    if (alternatives.length === 0 || criteria.length === 0) {
+        showEmptyState();
+        return;
+    }
+
     let html = `
         <div class="grid grid-cols-1 gap-6">
             ${alternatives.map(alt => `
@@ -212,7 +214,7 @@ function renderRatingsGrid() {
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             ${criteria.map(crit => {
                                 const key = `${alt.id}_${crit.id}`;
-                                const value = ratings[key] || 3;
+                                const value = ratings[key] || 1; // Default 1 jika undefined
                                 return `
                                     <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -255,10 +257,13 @@ function updateRating(altId, critId, value) {
     const key = `${altId}_${critId}`;
     ratings[key] = parseInt(value);
     
-    // Update badge display
-    const badge = document.querySelector(`input[data-alt="${altId}"][data-crit="${critId}"]`).nextElementSibling;
-    badge.textContent = value;
-    badge.className = `rating-badge rating-${value} w-8 text-center font-bold text-sm py-1 px-2 rounded`;
+    // Update badge display secara spesifik
+    const inputEl = document.querySelector(`input[data-alt="${altId}"][data-crit="${critId}"]`);
+    if(inputEl) {
+        const badge = inputEl.nextElementSibling;
+        badge.textContent = value;
+        badge.className = `rating-badge rating-${value} w-8 text-center font-bold text-sm py-1 px-2 rounded`;
+    }
 }
 
 async function saveRatings() {
@@ -271,12 +276,13 @@ async function saveRatings() {
         showLoading('Saving ratings...');
         
         // Convert ratings object to matrix format (2D array)
+        // Penting: Urutan harus sesuai dengan urutan 'alternatives' dan 'criteria' yang sudah di-sort di processResponseData
         const matrix = [];
         alternatives.forEach(alt => {
             const row = [];
             criteria.forEach(crit => {
                 const key = `${alt.id}_${crit.id}`;
-                row.push(ratings[key] || 3); // Default to 3 if not set
+                row.push(ratings[key] || 1); 
             });
             matrix.push(row);
         });
@@ -296,7 +302,6 @@ async function saveRatings() {
 document.addEventListener('DOMContentLoaded', () => {
     toggleSaveButton(false);
     loadData();
-    // Save button
     document.getElementById('btnSaveRatings')?.addEventListener('click', saveRatings);
 });
 
