@@ -300,6 +300,7 @@ class WeightedProductService
         // Ambil hasil ANP terakhir untuk DM ini
         $method    = 'ANP_DM_' . $dmId;
         $anpResult = \App\Models\CalculationResult::where('method', $method)
+            ->where('user_id', $dmId)
             ->latest('calculated_at')
             ->first();
 
@@ -307,6 +308,7 @@ class WeightedProductService
             // Fallback to global ANP if specific not found (optional)
             // But in multi-DM, we expect specific ANP
             $anpResult = \App\Models\CalculationResult::where('method', 'ANP')
+                ->whereNull('user_id')
                 ->latest('calculated_at')
                 ->first();
 

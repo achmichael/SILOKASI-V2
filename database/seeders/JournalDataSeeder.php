@@ -34,6 +34,8 @@ class JournalDataSeeder extends Seeder
             ['code' => 'VM', 'name' => 'Visi dan Misi', 'type' => 'benefit'],
         ];
 
+        // Kosongkan tabel jika perlu, atau gunakan firstOrCreate
+        // Criteria::truncate(); 
         foreach ($criteria as $c) Criteria::create($c);
         $criteriaList = Criteria::orderBy('id')->get();
         $criteriaMap  = Criteria::pluck('id','code')->toArray();
@@ -62,7 +64,7 @@ class JournalDataSeeder extends Seeder
             $dmUsers[] = User::create([
                 'name' => "DM $i",
                 'email' => "dm$i@example.com",
-                'password' => bcrypt('password'),
+                'password' => bcrypt('password'), // Sebaiknya gunakan Hash::make()
                 'role' => 'decision_maker'
             ]);
         }
@@ -98,24 +100,15 @@ class JournalDataSeeder extends Seeder
             ['SPL','VM',2.00],
         ];
 
-        foreach ($dmUsers as $index => $dm) {
+        foreach ($dmUsers as $dm) {
 
             foreach ($pairwiseBase as $row) {
-
-                if ($index == 0) {
-                    // DM1 → matrix asli
-                    $value = $row[2];
-                } else {
-                    // DM2 & DM3 → matrix baru
-                    $factor = rand(90,110) / 100;
-                    $value = max(1/9, min(9, $row[2] * $factor));
-                }
-
+                // MODIFIED: Langsung menggunakan nilai base ($row[2]) untuk semua user
                 PairwiseComparison::create([
                     'user_id' => $dm->id,
                     'criteria_i' => $criteriaMap[$row[0]],
                     'criteria_j' => $criteriaMap[$row[1]],
-                    'value' => $value
+                    'value' => $row[2] 
                 ]);
             }
 
@@ -139,40 +132,19 @@ class JournalDataSeeder extends Seeder
             [0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.25],
         ];
 
-        foreach ($dmUsers as $index => $dm) {
+        foreach ($dmUsers as $dm) {
 
             for ($i=0; $i<8; $i++) {
-
-                $row = [];
-
                 for ($j=0; $j<8; $j++) {
 
-                    if ($index == 0) {
-                        // DM1 → pakai matrix asli
-                        $row[$j] = $anpBase[$i][$j];
-                    } else {
-                        // DM2 & DM3 → buat matrix baru ±10%
-                        $base = $anpBase[$i][$j];
+                    // MODIFIED: Langsung ambil nilai dari base matrix tanpa random & tanpa normalisasi ulang
+                    $exactValue = $anpBase[$i][$j];
 
-                        if ($base == 0) {
-                            $row[$j] = 0;
-                        } else {
-                            $factor = rand(90,110)/100;
-                            $row[$j] = $base * $factor;
-                        }
-                    }
-                }
-
-                // Normalisasi row untuk ANP
-                $sum = array_sum($row);
-                if ($sum == 0) $sum = 1;
-
-                for ($j=0; $j<8; $j++) {
                     AnpInterdependency::create([
                         'user_id' => $dm->id,
                         'criteria_i' => $criteriaList[$i]->id,
                         'criteria_j' => $criteriaList[$j]->id,
-                        'value' => $row[$j] / $sum,
+                        'value' => $exactValue,
                     ]);
                 }
             }
@@ -194,10 +166,8 @@ class JournalDataSeeder extends Seeder
         ];
 
         foreach ($dmUsers as $dm) {
-
             for ($i=0; $i<5; $i++) {
                 for ($j=0; $j<8; $j++) {
-
                     AlternativeRating::create([
                         'user_id' => $dm->id,
                         'alternative_id' => $alternativesList[$i]->id,
@@ -214,9 +184,9 @@ class JournalDataSeeder extends Seeder
          * ========================================================== */
 
         $bordaPoints = [
-            [5,1,3,4,2],
-            [4,3,5,2,1],
-            [4,2,5,1,2],
+            [5,1,3,4,2], // DM 1
+            [4,3,5,2,1], // DM 2
+            [4,2,5,1,2], // DM 3
         ];
 
         foreach ($dmUsers as $idx => $dm) {
@@ -229,7 +199,6 @@ class JournalDataSeeder extends Seeder
             }
         }
 
-
-        $this->command->info("Journal Data Seeder berhasil dijalankan!");
+        $this->command->info("Journal Data Seeder berhasil dijalankan (Fixed Values)!");
     }
 }

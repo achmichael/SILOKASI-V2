@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AnpInterdependency;
 use App\Models\Criteria;
+use Illuminate\Support\Facades\Log;
 
 class AnpService
 {
@@ -72,6 +73,7 @@ class AnpService
         // Ambil hasil AHP terakhir
         $method = $userId ? 'AHP_DM_' . $userId : 'AHP';
         $ahpResult = \App\Models\CalculationResult::where('method', $method)
+            ->where('user_id', $userId)
             ->latest('calculated_at')
             ->first();
 
@@ -89,7 +91,7 @@ class AnpService
 
         // Hitung ANP
         $result = $this->calculateANP($interdependencyMatrix, $ahpWeights);
-
+        Log::info("ANP Weights calculated: " . json_encode($result['weights']));
         // Tambahkan mapping kriteria
         $criteria = Criteria::orderBy('id')->get();
         $result['criteria'] = $criteria->map(function($c, $index) use ($result, $ahpWeights) {
