@@ -24,8 +24,7 @@ class PairwiseComparisonController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
         $userId = $user->id;
-        $comparisons = PairwiseComparison::with(['criteriaI', 'criteriaJ'])
-            ->where('user_id', $userId)
+        $comparisons = PairwiseComparison::where('user_id', $userId)
             ->get();
         
         return response()->json([
