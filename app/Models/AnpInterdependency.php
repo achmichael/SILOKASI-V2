@@ -10,10 +10,16 @@ class AnpInterdependency extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'criteria_i',
         'criteria_j',
         'value',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function criteriaI()
     {

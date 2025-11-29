@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('anp_interdependencies', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('criteria_i')->constrained('criterias')->onDelete('cascade');
             $table->foreignId('criteria_j')->constrained('criterias')->onDelete('cascade');
             $table->decimal('value', 10, 4);

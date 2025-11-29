@@ -81,6 +81,22 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
+     * Get pairwise comparisons for this user
+     */
+    public function pairwiseComparisons()
+    {
+        return $this->hasMany(PairwiseComparison::class);
+    }
+
+    /**
+     * Get ANP interdependencies for this user
+     */
+    public function anpInterdependencies()
+    {
+        return $this->hasMany(AnpInterdependency::class);
+    }
+
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
