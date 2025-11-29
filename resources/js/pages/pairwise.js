@@ -22,10 +22,7 @@ async function loadCriteria() {
                 </div>
             `;
             return;
-        }
-
-        initializeMatrix();
-        
+        }        
         // Load existing matrix if available
         await loadExistingMatrix();
         
