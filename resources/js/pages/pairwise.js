@@ -23,6 +23,8 @@ async function loadCriteria() {
             `;
             return;
         }
+
+        initializeMatrix();
         
         // Load existing matrix if available
         await loadExistingMatrix();
@@ -38,10 +40,23 @@ async function loadCriteria() {
 async function loadExistingMatrix() {
     try {
         const response = await pairwiseAPI.getMatrix();
-        const data = response.data.data;
-        
-        if (data && data.matrix) {
-            pairwiseMatrix = data.matrix;
+        const existingData = response.data.data; 
+        if (Array.isArray(existingData) && existingData.length > 0) {
+            
+            // Loop data dari server dan masukkan ke pairwiseMatrix
+            existingData.forEach(item => {
+                // Pastikan value dikonversi ke float karena dari JSON string "1.00"
+                const val = parseFloat(item.value);
+                
+                // Buat key sesuai format yang dipakai di initializeMatrix & renderMatrix
+                // Format: "idBaris_idKolom"
+                const key = `${item.criteria_i}_${item.criteria_j}`;
+                
+                // Masukkan ke state local
+                pairwiseMatrix[key] = val;
+            });
+
+            displayConsistencyResults(response.data.calculation_result);
         }
     } catch (error) {
         // No existing matrix, initialize empty
@@ -197,8 +212,7 @@ async function saveMatrix() {
 
 function displayConsistencyResults(data) {
     const placeholder = document.getElementById('consistencyPlaceholder');
-    const resultContainer = document.getElementById('consistencyResult');
-    
+    const resultContainer = document.getElementById('consistencyResult');    
     // Toggle visibility
     if (placeholder) placeholder.classList.add('hidden');
     if (resultContainer) resultContainer.classList.remove('hidden');
