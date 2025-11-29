@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BordaPoint;
 use App\Models\Alternative;
-use App\Models\DecisionMaker;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class BordaPointController extends Controller
@@ -14,7 +14,7 @@ class BordaPointController extends Controller
      */
     public function index()
     {
-        $points = BordaPoint::with(['decisionMaker', 'alternative'])->get();
+        $points = BordaPoint::with(['user', 'alternative'])->get();
         
         return response()->json([
             'success' => true,
@@ -29,7 +29,7 @@ class BordaPointController extends Controller
     {
         $validated = $request->validate([
             'points' => 'required|array',
-            'points.*.decision_maker_id' => 'required|exists:decision_makers,id',
+            'points.*.user_id' => 'required|exists:users,id',
             'points.*.alternative_id' => 'required|exists:alternatives,id',
             'points.*.points' => 'required|integer|min:1',
         ]);
@@ -57,7 +57,7 @@ class BordaPointController extends Controller
             'matrix' => 'required|array',
         ]);
 
-        $decisionMakers = DecisionMaker::orderBy('id')->get();
+        $decisionMakers = User::decisionMakers()->orderBy('id')->get();
         $alternatives = Alternative::orderBy('id')->get();
         
         $numDM = $decisionMakers->count();
@@ -79,7 +79,7 @@ class BordaPointController extends Controller
         for ($k = 0; $k < $numDM; $k++) {
             for ($i = 0; $i < $numAlt; $i++) {
                 BordaPoint::create([
-                    'decision_maker_id' => $decisionMakers[$k]->id,
+                    'user_id' => $decisionMakers[$k]->id,
                     'alternative_id' => $alternatives[$i]->id,
                     'points' => $matrix[$k][$i],
                 ]);

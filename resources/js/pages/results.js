@@ -459,7 +459,6 @@ function displayBORDAResults(data, container) {
                                     <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                                         <tr>
                                             <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Decision Maker</th>
-                                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Weight</th>
                                             <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Vector V</th>
                                             <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">WP Rank</th>
                                             <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Borda Points</th>
@@ -469,14 +468,6 @@ function displayBORDAResults(data, container) {
                                         ${alt.decision_makers_detail?.map(dm => `
                                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                                 <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">${dm.dm_name}</td>
-                                                <td class="px-4 py-3 text-sm">
-                                                    <div class="flex items-center gap-2">
-                                                        <div class="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                                            <div class="bg-indigo-500 h-2 rounded-full" style="width: ${(dm.dm_weight * 100).toFixed(0)}%"></div>
-                                                        </div>
-                                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-400">${(dm.dm_weight * 100).toFixed(0)}%</span>
-                                                    </div>
-                                                </td>
                                                 <td class="px-4 py-3 text-sm font-mono font-semibold text-gray-700 dark:text-gray-300">${dm.vector_v?.toFixed(4) || '-'}</td>
                                                 <td class="px-4 py-3 text-sm font-bold text-purple-600 dark:text-purple-400">#${dm.ranking}</td>
                                                 <td class="px-4 py-3">
@@ -485,7 +476,7 @@ function displayBORDAResults(data, container) {
                                                     </span>
                                                 </td>
                                             </tr>
-                                        `).join('') || '<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No details available</td></tr>'}
+                                        `).join('') || '<tr><td colspan="4" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No details available</td></tr>'}
                                     </tbody>
                                 </table>
                             </div>

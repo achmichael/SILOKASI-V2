@@ -131,10 +131,10 @@ export const alternativeAPI = {
         }),
 };
 
-// ============= DECISION MAKER API =============
+// ============= USER API (Decision Makers) =============
 export const decisionMakerAPI = {
     getAll: () =>
-        api.get("/decision-makers", {
+        api.get("/users/decision-makers", {
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
@@ -142,35 +142,8 @@ export const decisionMakerAPI = {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         }),
-    getById: (id) =>
-        api.get(`/decision-makers/${id}`, {
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        }),
-    create: (data) =>
-        api.post("/decision-makers", data, {
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        }),
-    update: (id, data) =>
-        api.put(`/decision-makers/${id}`, data, {
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-        }),
-    delete: (id) =>
-        api.delete(`/decision-makers/${id}`, {
+    setRole: (id, role) =>
+        api.post(`/users/${id}/set-decision-maker`, { role }, {
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
@@ -235,8 +208,8 @@ export const ratingAPI = {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         }),
-    getRatingsByDM: (dmId) =>
-        api.get(`/alternative-ratings?decision_maker_id=${dmId}`, {
+    getRatingsByDM: (userId) =>
+        api.get(`/alternative-ratings?user_id=${userId}`, {
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",
@@ -253,10 +226,10 @@ export const ratingAPI = {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         }),
-    saveRatings: (dmId, ratings) =>
+    saveRatings: (dmId, matrix) =>
         api.post("/alternative-ratings/matrix", {
-            decision_maker_id: dmId,
-            ratings: ratings,
+            user_id: dmId,
+            matrix: matrix,
         }, {
             headers: {
                 "Content-Type": "application/json",
@@ -332,6 +305,28 @@ export const calculationAPI = {
         }),
     getFinalRanking: () =>
         api.get("/results/final-ranking", {
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }),
+    
+    // Get WP results for specific DM
+    calculateWPForDM: (dmId) =>
+        api.post(`/calculate/wp?dm_id=${dmId}`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }),
+    
+    // Get Borda results
+    getBordaResults: () =>
+        api.get("/results/borda", {
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json",

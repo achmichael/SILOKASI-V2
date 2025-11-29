@@ -8,7 +8,7 @@ use App\Http\Controllers\AlternativeController;
 use App\Http\Controllers\PairwiseComparisonController;
 use App\Http\Controllers\AnpInterdependencyController;
 use App\Http\Controllers\AlternativeRatingController;
-use App\Http\Controllers\DecisionMakerController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\BordaPointController;
 use App\Http\Controllers\CalculationController;
 use App\Http\Controllers\ProfileController;
@@ -31,13 +31,11 @@ Route::middleware('web')->prefix('auth')->group(function () {
 Route::middleware(['auth:api', 'jwt.verify'])->group(function () {
     Route::get('/user/current', function (Request $request) {
         $user = $request->user();
-        $user->load('decisionMaker');
 
         return response()->json([
             'success' => true,
             'data'    => [
                 'user'           => $user,
-                'decision_maker' => $user->decisionMaker,
             ],
         ]);
     });
@@ -60,11 +58,9 @@ Route::middleware(['auth:api', 'jwt.verify'])->group(function () {
         Route::delete('/{id}', [AlternativeController::class, 'destroy']);
     });
 
-    Route::prefix('decision-makers')->group(function () {
-        Route::get('/', [DecisionMakerController::class, 'index']);
-        Route::post('/', [DecisionMakerController::class, 'store']);
-        Route::put('/{id}', [DecisionMakerController::class, 'update']);
-        Route::delete('/{id}', [DecisionMakerController::class, 'destroy']);
+    Route::prefix('users')->group(function () {
+        Route::get('/decision-makers', [UserController::class, 'getDecisionMakers']);
+        Route::post('/{id}/set-decision-maker', [UserController::class, 'setDecisionMaker']);
     });
 
     // Input Data Routes
@@ -104,5 +100,6 @@ Route::middleware(['auth:api', 'jwt.verify'])->group(function () {
     Route::prefix('results')->group(function () {
         Route::get('/', [CalculationController::class, 'getResults']);
         Route::get('/final-ranking', [CalculationController::class, 'getFinalRanking']);
+        Route::get('/borda', [CalculationController::class, 'getBordaResults']);
     });
 });

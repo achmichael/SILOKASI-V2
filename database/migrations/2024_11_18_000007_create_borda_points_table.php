@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('borda_points', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('decision_maker_id')->constrained('decision_makers')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('alternative_id')->constrained('alternatives')->onDelete('cascade');
             $table->integer('points'); // Poin Borda (1-5)
             $table->timestamps();

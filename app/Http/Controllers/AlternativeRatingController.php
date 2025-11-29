@@ -32,22 +32,22 @@ class AlternativeRatingController extends Controller
             'ratings.*.alternative_id' => 'required|exists:alternatives,id',
             'ratings.*.criteria_id' => 'required|exists:criteria,id',
             'ratings.*.rating' => 'required|integer|min:1|max:5',
-            'ratings.*.decision_maker_id' => 'nullable|exists:decision_makers,id',
+            'ratings.*.user_id' => 'nullable|exists:users,id',
         ]);
 
-        $dmId = $request->input('decision_maker_id');
+        $dmId = $request->input('user_id');
 
         // Hapus data lama untuk DM ini (jika ada)
         if ($dmId) {
-            AlternativeRating::where('decision_maker_id', $dmId)->delete();
+            AlternativeRating::where('user_id', $dmId)->delete();
         } else {
-            AlternativeRating::whereNull('decision_maker_id')->delete();
+            AlternativeRating::whereNull('user_id')->delete();
         }
 
         // Simpan data baru
         foreach ($validated['ratings'] as $rating) {
-            if (!isset($rating['decision_maker_id']) && $dmId) {
-                $rating['decision_maker_id'] = $dmId;
+            if (!isset($rating['user_id']) && $dmId) {
+                $rating['user_id'] = $dmId;
             }
             AlternativeRating::create($rating);
         }
@@ -65,7 +65,7 @@ class AlternativeRatingController extends Controller
     {
         $validated = $request->validate([
             'matrix' => 'required|array',
-            'decision_maker_id' => 'nullable|exists:decision_makers,id',
+            'user_id' => 'nullable|exists:users,id',
         ]);
 
         $alternatives = Alternative::orderBy('id')->get();
@@ -74,7 +74,7 @@ class AlternativeRatingController extends Controller
         $m = $alternatives->count();
         $n = $criteria->count();
         $matrix = $validated['matrix'];
-        $dmId = $validated['decision_maker_id'] ?? $request->query('dm_id');
+        $dmId = $validated['user_id'] ?? $request->query('dm_id');
 
         // Validasi ukuran matriks
         if (count($matrix) !== $m) {
@@ -86,9 +86,9 @@ class AlternativeRatingController extends Controller
 
         // Hapus data lama untuk DM ini (jika ada)
         if ($dmId) {
-            AlternativeRating::where('decision_maker_id', $dmId)->delete();
+            AlternativeRating::where('user_id', $dmId)->delete();
         } else {
-            AlternativeRating::whereNull('decision_maker_id')->delete();
+            AlternativeRating::whereNull('user_id')->delete();
         }
 
         // Simpan matriks
@@ -98,7 +98,7 @@ class AlternativeRatingController extends Controller
                     'alternative_id' => $alternatives[$i]->id,
                     'criteria_id' => $criteria[$j]->id,
                     'rating' => $matrix[$i][$j],
-                    'decision_maker_id' => $dmId,
+                    'user_id' => $dmId,
                 ]);
             }
         }

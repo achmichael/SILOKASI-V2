@@ -17,7 +17,8 @@ export default defineConfig({
                 'resources/js/pages/pairwise.js',
                 'resources/js/pages/profile.js',
                 'resources/js/pages/ratings.js',
-                'resources/js/pages/results.js'
+                'resources/js/pages/results.js',
+                'resources/js/pages/my-results.js'
             ],
             refresh: true,
         }),

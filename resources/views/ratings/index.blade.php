@@ -53,13 +53,12 @@
 
                         <div class="grid grid-cols-2 gap-3">
                             <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Status</p>
+                                <span id="dmStatusBadge" class="badge badge-success">Active</span>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
                                 <p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Role</p>
                                 <p id="dmRole" class="text-sm font-semibold text-slate-700 truncate">--</p>
-                            </div>
-                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 relative overflow-hidden">
-                                <p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Voting Weight</p>
-                                <p id="dmWeight" class="text-lg font-bold text-primary-600">--%</p>
-                                <div class="absolute bottom-0 left-0 h-1 bg-primary-500 transition-all duration-1000" id="dmWeightBar" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>

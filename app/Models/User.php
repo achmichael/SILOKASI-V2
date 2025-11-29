@@ -49,11 +49,35 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * Get the decision maker associated with the user.
+     * Scope to filter decision makers
      */
-    public function decisionMaker()
+    public function scopeDecisionMakers($query)
     {
-        return $this->hasOne(DecisionMaker::class);
+        return $query->where('role', 'decision_maker');
+    }
+
+    /**
+     * Check if user is a decision maker
+     */
+    public function isDecisionMaker()
+    {
+        return $this->role === 'decision_maker';
+    }
+
+    /**
+     * Get alternative ratings for this user
+     */
+    public function alternativeRatings()
+    {
+        return $this->hasMany(AlternativeRating::class);
+    }
+
+    /**
+     * Get borda points for this user
+     */
+    public function bordaPoints()
+    {
+        return $this->hasMany(BordaPoint::class);
     }
 
     /**

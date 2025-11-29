@@ -10,14 +10,14 @@ class BordaPoint extends Model
     use HasFactory;
 
     protected $fillable = [
-        'decision_maker_id',
+        'user_id',
         'alternative_id',
         'points',
     ];
 
-    public function decisionMaker()
+    public function user()
     {
-        return $this->belongsTo(DecisionMaker::class);
+        return $this->belongsTo(User::class);
     }
 
     public function alternative()

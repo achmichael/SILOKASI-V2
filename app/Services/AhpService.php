@@ -56,6 +56,12 @@ class AhpService
 
         // Step 3: Normalisasi untuk mendapatkan Eigen Vector (W)
         $sumRoots = array_sum($nthRoots);
+        
+        // Prevent division by zero
+        if ($sumRoots == 0) {
+            throw new \Exception('Sum of nth roots is zero. Please check pairwise comparison matrix.');
+        }
+        
         $eigenVector = [];
         for ($i = 0; $i < $n; $i++) {
             $eigenVector[] = round($nthRoots[$i] / $sumRoots, 4);
@@ -65,11 +71,11 @@ class AhpService
         $lambdaMax = $this->calculateLambdaMax($pairwiseMatrix, $eigenVector);
 
         // Step 5: Hitung Consistency Index (CI)
-        $ci = ($lambdaMax - $n) / ($n - 1);
+        $ci = $n > 1 ? ($lambdaMax - $n) / ($n - 1) : 0;
 
         // Step 6: Hitung Consistency Ratio (CR)
         $ri = self::RANDOM_INDEX[$n] ?? 1.41;
-        $cr = $ci / $ri;
+        $cr = $ri > 0 ? $ci / $ri : 0;
 
         // Konsisten jika CR < 0.1
         $isConsistent = $cr < 0.1;
@@ -106,6 +112,10 @@ class AhpService
             if ($weights[$i] != 0) {
                 $lambdaValues[] = $weightedSum[$i] / $weights[$i];
             }
+        }
+
+        if (count($lambdaValues) == 0) {
+            throw new \Exception('No valid lambda values calculated. All weights are zero.');
         }
 
         return array_sum($lambdaValues) / count($lambdaValues);

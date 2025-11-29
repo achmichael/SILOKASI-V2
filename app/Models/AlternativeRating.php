@@ -13,7 +13,7 @@ class AlternativeRating extends Model
         'alternative_id',
         'criteria_id',
         'rating',
-        'decision_maker_id',
+        'user_id',
     ];
 
     public function alternative()
@@ -26,8 +26,8 @@ class AlternativeRating extends Model
         return $this->belongsTo(Criteria::class);
     }
 
-    public function decisionMaker()
+    public function user()
     {
-        return $this->belongsTo(DecisionMaker::class);
+        return $this->belongsTo(User::class);
     }
 }

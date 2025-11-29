@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\DecisionMaker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -32,7 +31,6 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,decision_maker',
-            // 'weight' => 'required_if:role,decision_maker|nullable|numeric|min:0|max:1',
         ]);
 
         if ($validator->fails()) {
@@ -52,15 +50,6 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
             ]);
-
-            // If the user is a decision maker, create a decision maker record
-            if ($request->role === 'decision_maker') {
-                DecisionMaker::create([
-                    'user_id' => $user->id,
-                    'name' => $request->name,
-                    'weight' => $request->weight ?? 1.0,
-                ]);
-            }
 
             DB::commit();
 
@@ -132,7 +121,6 @@ class AuthController extends Controller
     public function me()
     {
         $user = auth('api')->user();
-        $user->load('decisionMaker');
 
         return response()->json([
             'success' => true,
@@ -178,7 +166,6 @@ class AuthController extends Controller
     protected function respondWithToken($token)
     {
         $user = auth('api')->user();
-        $user->load('decisionMaker');
 
         return response()->json([
             'success' => true,

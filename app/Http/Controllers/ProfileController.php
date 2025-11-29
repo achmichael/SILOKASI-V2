@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Models\DecisionMaker;
 
 class ProfileController extends Controller
 {
@@ -39,31 +38,11 @@ class ProfileController extends Controller
         }
         $user->save();
 
-        // Update or Create Decision Maker
-        if ($user->role === 'decision_maker') {
-            $decisionMaker = DecisionMaker::where('user_id', $user->id)->first();
-
-            if ($decisionMaker) {
-                $decisionMaker->name = $request->name; // Sync name
-                $decisionMaker->save();
-            } else {
-                // Create if not exists (though it should ideally exist)
-                DecisionMaker::create([
-                    'user_id' => $user->id,
-                    'name' => $request->name,
-                    'weight' => 0, // Default weight if creating new
-                ]);
-            }
-        }
-
-        $user->load('decisionMaker');
-
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully',
             'data' => [
                 'user' => $user,
-                'decision_maker' => $user->decisionMaker
             ]
         ]);
     }

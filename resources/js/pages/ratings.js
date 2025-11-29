@@ -5,7 +5,6 @@ let alternatives = [];
 let ratings = {};
 let currentDMId = null;
 let currentUser = null;
-let currentDecisionMaker = null;
 
 async function loadData() {
     try {
@@ -16,18 +15,17 @@ async function loadData() {
         ]);
 
         currentUser = userRes.data.data.user;
-        currentDecisionMaker = userRes.data.data.decision_maker;
         criteria = criteriaRes.data.data;
         alternatives = altRes.data.data;
 
         updateUserCard();
 
-        if (!currentDecisionMaker) {
+        if (!currentUser || currentUser.role !== 'decision_maker') {
             showNoDecisionMakerState();
             return;
         }
 
-        currentDMId = currentDecisionMaker.id;
+        currentDMId = currentUser.id;
 
         if (criteria.length === 0 || alternatives.length === 0) {
             showEmptyState();
@@ -84,9 +82,9 @@ function showNoDecisionMakerState() {
                     <svg class="w-12 h-12 mx-auto text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                    <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Decision Maker Profile Required</h3>
+                    <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">Decision Maker Role Required</h3>
                     <p class="text-gray-600 dark:text-gray-400 mt-2 max-w-2xl mx-auto">
-                        Your account is not linked to any decision maker profile yet. Please contact the administrator to configure your role so you can start rating alternatives.
+                        Your account does not have decision maker role. Please contact the administrator to update your role so you can start rating alternatives.
                     </p>
                 </div>
             </div>
@@ -115,36 +113,43 @@ function updateUserCard() {
     const nameEl = document.getElementById('dmName');
     if (!nameEl) return;
 
+    // Hide loading indicator
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+    }
+
+    // Update user details
     nameEl.textContent = currentUser?.name || '-';
     document.getElementById('dmEmail').textContent = currentUser?.email || '-';
     
-    const roleEl = document.getElementById('dmRole');
-    if (roleEl) {
-        roleEl.textContent = currentUser?.role.replace('_', ' ') || 'Role not assigned yet';
-    }
-
-    const weightPercent = currentDecisionMaker ? `${(currentDecisionMaker.weight * 100).toFixed(0)}%` : '0%';
-    const weightEl = document.getElementById('dmWeight');
-    if (weightEl) {
-        weightEl.textContent = weightPercent;
+    // Update avatar
+    const avatarEl = document.getElementById('dmAvatar');
+    if (avatarEl && currentUser?.name) {
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        avatarEl.textContent = initials;
+        avatarEl.classList.remove('bg-slate-100', 'text-slate-400');
+        avatarEl.classList.add('bg-gradient-to-br', 'from-primary-100', 'to-indigo-100', 'text-primary-700');
     }
     
-    const weightHelper = document.getElementById('dmWeightHelper');
-    if (weightHelper) {
-        weightHelper.textContent = currentDecisionMaker
-            ? `${Number(currentDecisionMaker.weight).toFixed(2)} of total influence`
-            : 'Awaiting weight assignment';
-    }
-
-    const weightBar = document.getElementById('dmWeightBar');
-    if (weightBar) {
-        weightBar.style.width = weightPercent;
+    const roleEl = document.getElementById('dmRole');
+    if (roleEl) {
+        const roleText = currentUser?.role === 'decision_maker' ? 'Decision Maker' : 'Admin';
+        roleEl.textContent = roleText;
     }
 
     const statusBadge = document.getElementById('dmStatusBadge');
     if (statusBadge) {
-        statusBadge.textContent = currentDecisionMaker ? 'Profile Linked' : 'Profile Missing';
-        statusBadge.className = currentDecisionMaker ? 'badge badge-success' : 'badge badge-warning';
+        const isDecisionMaker = currentUser?.role === 'decision_maker';
+        statusBadge.textContent = isDecisionMaker ? 'Active' : 'Not DM';
+        statusBadge.className = isDecisionMaker ? 'badge badge-success' : 'badge badge-warning';
+    }
+
+    // Remove opacity and show card content
+    const dmDetails = document.getElementById('dmDetails');
+    if (dmDetails) {
+        dmDetails.classList.remove('opacity-50');
+        dmDetails.classList.add('opacity-100');
     }
 }
 
@@ -265,7 +270,18 @@ async function saveRatings() {
     try {
         showLoading('Saving ratings...');
         
-        await ratingAPI.saveRatings(currentDMId, ratings);
+        // Convert ratings object to matrix format (2D array)
+        const matrix = [];
+        alternatives.forEach(alt => {
+            const row = [];
+            criteria.forEach(crit => {
+                const key = `${alt.id}_${crit.id}`;
+                row.push(ratings[key] || 3); // Default to 3 if not set
+            });
+            matrix.push(row);
+        });
+        
+        await ratingAPI.saveRatings(currentDMId, matrix);
         
         closeLoading();
         showSuccess('Ratings saved successfully!');

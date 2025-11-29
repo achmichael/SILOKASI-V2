@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Alternative;
 use App\Models\BordaPoint;
-use App\Models\DecisionMaker;
+use App\Models\User;
 
 class BordaService
 {
@@ -12,20 +12,19 @@ class BordaService
      * Hitung skor Borda untuk agregasi keputusan kelompok
      *
      * @param array $bordaPoints Array 2D: [DM][Alternative] = points
-     * @param array $dmWeights Bobot decision maker
      * @return array ['scores' => [...], 'rankings' => [...]]
      */
-    public function calculateBorda(array $bordaPoints, array $dmWeights): array
+    public function calculateBorda(array $bordaPoints): array
     {
         $numAlternatives = count($bordaPoints[0] ?? []);
         $numDM = count($bordaPoints);
 
         $scores = array_fill(0, $numAlternatives, 0.0);
 
-        // Hitung: V_Borda(A_i) = Σ (P_ik × w_k)
+        // Hitung: V_Borda(A_i) = Σ P_ik (all DMs have equal weight)
         for ($i = 0; $i < $numAlternatives; $i++) {
             for ($k = 0; $k < $numDM; $k++) {
-                $scores[$i] += $bordaPoints[$k][$i] * $dmWeights[$k];
+                $scores[$i] += $bordaPoints[$k][$i];
             }
         }
 
@@ -67,14 +66,14 @@ class BordaService
      */
     public function buildBordaPointsMatrix(): array
     {
-        $decisionMakers = DecisionMaker::orderBy('id')->get();
+        $decisionMakers = User::decisionMakers()->orderBy('id')->get();
         $alternatives = Alternative::orderBy('id')->get();
 
         $matrix = [];
         foreach ($decisionMakers as $dm) {
             $row = [];
             foreach ($alternatives as $alt) {
-                $bordaPoint = BordaPoint::where('decision_maker_id', $dm->id)
+                $bordaPoint = BordaPoint::where('user_id', $dm->id)
                     ->where('alternative_id', $alt->id)
                     ->first();
                 
@@ -91,15 +90,14 @@ class BordaService
      */
     public function processBorda(): array
     {
-        // Ambil decision makers dan bobotnya
-        $decisionMakers = DecisionMaker::orderBy('id')->get();
-        $dmWeights = $decisionMakers->pluck('weight')->toArray();
+        // Ambil decision makers (users with role decision_maker)
+        $decisionMakers = User::decisionMakers()->orderBy('id')->get();
 
         // Build matriks poin Borda
         $bordaPointsMatrix = $this->buildBordaPointsMatrix();
 
-        // Hitung Borda
-        $result = $this->calculateBorda($bordaPointsMatrix, $dmWeights);
+        // Hitung Borda (no weights - all DMs are equal)
+        $result = $this->calculateBorda($bordaPointsMatrix);
 
         // Ambil WP result untuk mendapatkan vector V
         $wpResults = [];
@@ -132,7 +130,6 @@ class BordaService
                 $dmDetails[] = [
                     'dm_id' => $dm->id,
                     'dm_name' => $dm->name,
-                    'dm_weight' => $dm->weight,
                     'vector_v' => $vectorV,
                     'ranking' => $ranking,
                     'borda_points' => $bordaPointsMatrix[$dmIdx][$index] ?? 0,
@@ -156,12 +153,11 @@ class BordaService
             return [
                 'id' => $dm->id,
                 'name' => $dm->name,
-                'weight' => $dm->weight,
+                'email' => $dm->email,
             ];
         })->toArray();
 
         $result['borda_points_matrix'] = $bordaPointsMatrix;
-        $result['dm_weights'] = $dmWeights;
 
         // Simpan ke database
         \App\Models\CalculationResult::create([

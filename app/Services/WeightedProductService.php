@@ -42,6 +42,12 @@ class WeightedProductService
 
         // Step 2: Hitung V_i (Vector V - Normalisasi)
         $totalS = array_sum($vectorS);
+        
+        // Prevent division by zero
+        if ($totalS == 0) {
+            throw new \Exception('Total vector S is zero. Please check if ratings are provided.');
+        }
+        
         $vectorV = [];
         for ($i = 0; $i < $m; $i++) {
             $vectorV[] = round($vectorS[$i] / $totalS, 6);
@@ -79,23 +85,31 @@ class WeightedProductService
     }
 
     /**
-     * Build matriks rating dari database
+     * Build matriks rating dari database (agregat dari semua DM)
      */
     public function buildRatingsMatrix(): array
     {
         $alternatives = Alternative::orderBy('id')->get();
         $criteria = Criteria::orderBy('id')->get();
+        $decisionMakers = \App\Models\User::decisionMakers()->get();
+
+        if ($decisionMakers->isEmpty()) {
+            throw new \Exception('No decision makers found. Please ensure users with decision_maker role exist.');
+        }
 
         $matrix = [];
         foreach ($alternatives as $alternative) {
             $row = [];
             foreach ($criteria as $criterion) {
-                $rating = AlternativeRating::where('alternative_id', $alternative->id)
+                // Ambil rata-rata rating dari semua decision makers
+                $ratings = AlternativeRating::where('alternative_id', $alternative->id)
                     ->where('criteria_id', $criterion->id)
-                    ->whereNull('decision_maker_id') // Default: tanpa DM
-                    ->first();
+                    ->whereIn('user_id', $decisionMakers->pluck('id'))
+                    ->pluck('rating');
                 
-                $row[] = $rating ? $rating->rating : 0;
+                // Jika ada rating, gunakan rata-rata; jika tidak ada, default 3 (nilai tengah)
+                $avgRating = $ratings->isNotEmpty() ? $ratings->average() : 3;
+                $row[] = round($avgRating, 2);
             }
             $matrix[] = $row;
         }
@@ -117,10 +131,11 @@ class WeightedProductService
             foreach ($criteria as $criterion) {
                 $rating = AlternativeRating::where('alternative_id', $alternative->id)
                     ->where('criteria_id', $criterion->id)
-                    ->where('decision_maker_id', $dmId)
+                    ->where('user_id', $dmId)
                     ->first();
                 
-                $row[] = $rating ? $rating->rating : 0;
+                // Default to 3 (middle value) if no rating exists to avoid identical scores
+                $row[] = $rating ? $rating->rating : 3;
             }
             $matrix[] = $row;
         }
@@ -129,7 +144,7 @@ class WeightedProductService
     }
 
     /**
-     * Proses Weighted Product dari database
+     * Proses Weighted Product dari database (agregat dari semua DM)
      */
     public function processWP(): array
     {
@@ -145,7 +160,7 @@ class WeightedProductService
         $anpData = $anpResult->data;
         $anpWeights = $anpData['weights'];
 
-        // Build matriks rating
+        // Build matriks rating (agregat dari semua DM)
         $ratingsMatrix = $this->buildRatingsMatrix();
 
         // Ambil tipe kriteria
@@ -154,6 +169,9 @@ class WeightedProductService
 
         // Hitung WP
         $result = $this->calculateWP($ratingsMatrix, $anpWeights, $criteriaTypes);
+
+        // Get decision makers info
+        $decisionMakers = \App\Models\User::decisionMakers()->get();
 
         // Tambahkan mapping alternatif
         $alternatives = Alternative::orderBy('id')->get();
@@ -177,6 +195,8 @@ class WeightedProductService
         $result['ratings_matrix'] = $ratingsMatrix;
         $result['criteria_types'] = $criteriaTypes;
         $result['anp_weights'] = $anpWeights;
+        $result['decision_makers_count'] = $decisionMakers->count();
+        $result['aggregation_method'] = 'average';
 
         // Simpan ke database
         \App\Models\CalculationResult::create([
@@ -193,6 +213,9 @@ class WeightedProductService
      */
     public function processWPForDM($dmId): array
     {
+        // Check if DM has provided any ratings
+        $ratingsCount = AlternativeRating::where('user_id', $dmId)->count();
+        
         // Ambil hasil ANP terakhir
         $anpResult = \App\Models\CalculationResult::where('method', 'ANP')
             ->latest('calculated_at')
@@ -243,6 +266,8 @@ class WeightedProductService
         $result['ratings_matrix'] = $ratingsMatrix;
         $result['criteria_types'] = $criteriaTypes;
         $result['anp_weights'] = $anpWeights;
+        $result['has_ratings'] = $ratingsCount > 0;
+        $result['ratings_count'] = $ratingsCount;
 
         // Simpan ke database
         \App\Models\CalculationResult::create([

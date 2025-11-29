@@ -65,4 +65,10 @@ Route::middleware('auth:web')->group(function () {
             return view('results.index');
         })->name('index');
     });
+
+    Route::prefix('my-results')->name('my-results.')->group(function () {
+        Route::get('/', function () {
+            return view('my-results.index');
+        })->name('index');
+    });
 });

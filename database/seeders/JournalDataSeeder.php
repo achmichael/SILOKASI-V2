@@ -8,7 +8,7 @@ use App\Models\Alternative;
 use App\Models\PairwiseComparison;
 use App\Models\AnpInterdependency;
 use App\Models\AlternativeRating;
-use App\Models\DecisionMaker;
+use App\Models\User;
 use App\Models\BordaPoint;
 
 class JournalDataSeeder extends Seeder
@@ -47,7 +47,26 @@ class JournalDataSeeder extends Seeder
             Alternative::create($alternative);
         }
 
-        // // 3. Seed Pairwise Comparisons (Tabel 1)
+        // 3. Seed Decision Makers (Users with role decision_maker)
+        $decisionMakers = [
+            ['name' => 'DM 1', 'email' => 'dm1@example.com', 'password' => bcrypt('password'), 'role' => 'decision_maker'],
+            ['name' => 'DM 2', 'email' => 'dm2@example.com', 'password' => bcrypt('password'), 'role' => 'decision_maker'],
+            ['name' => 'DM 3', 'email' => 'dm3@example.com', 'password' => bcrypt('password'), 'role' => 'decision_maker'],
+        ];
+
+        foreach ($decisionMakers as $dm) {
+            User::create($dm);
+        }
+
+        // Create admin user
+        User::create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        // // 4. Seed Pairwise Comparisons (Tabel 1)
         // $pairwiseData = [
         //     // KT row
         //     ['KT', 'BB', 1.00], ['KT', 'II', 3.00], ['KT', 'LPD', 3.00], ['KT', 'ST', 3.00], 
@@ -78,7 +97,7 @@ class JournalDataSeeder extends Seeder
         //     ]);
         // }
 
-        // // 4. Seed ANP Interdependency Matrix (Tabel 3)
+        // // 5. Seed ANP Interdependency Matrix (Tabel 3)
         // $anpMatrix = [
         //     [0.25, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00], // KT
         //     [0.00, 0.17, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00], // BB
@@ -101,7 +120,7 @@ class JournalDataSeeder extends Seeder
         //     }
         // }
 
-        // // 5. Seed Alternative Ratings (Tabel 4)
+        // // 6. Seed Alternative Ratings (Tabel 4)
         // $ratingsMatrix = [
         //     [5, 4, 5, 2, 3, 3, 2, 2], // A1
         //     [4, 3, 2, 5, 2, 4, 3, 4], // A2
@@ -121,29 +140,18 @@ class JournalDataSeeder extends Seeder
         //     }
         // }
 
-        // // 6. Seed Decision Makers (Tabel 7)
-        // $decisionMakers = [
-        //     ['name' => 'DM 1', 'weight' => 0.3],
-        //     ['name' => 'DM 2', 'weight' => 0.5],
-        //     ['name' => 'DM 3', 'weight' => 1.0],
-        // ];
-
-        // foreach ($decisionMakers as $dm) {
-        //     DecisionMaker::create($dm);
-        // }
-
-        // // 7. Seed Borda Points (Tabel 6)
+        // // 7. Seed Borda Points (Tabel 6) - Now using user_id instead of decision_maker_id
         // $bordaPointsMatrix = [
         //     [5, 1, 3, 4, 2], // DM 1: A1=5, A2=1, A3=3, A4=4, A5=2
         //     [4, 3, 5, 2, 1], // DM 2: A1=4, A2=3, A3=5, A4=2, A5=1
         //     [4, 2, 5, 1, 2], // DM 3: A1=4, A2=2, A3=5, A4=1, A5=2
         // ];
 
-        // $dmList = DecisionMaker::orderBy('id')->get();
+        // $dmList = User::decisionMakers()->orderBy('id')->get();
         // for ($k = 0; $k < 3; $k++) {
         //     for ($i = 0; $i < 5; $i++) {
         //         BordaPoint::create([
-        //             'decision_maker_id' => $dmList[$k]->id,
+        //             'user_id' => $dmList[$k]->id,
         //             'alternative_id' => $alternativesList[$i]->id,
         //             'points' => $bordaPointsMatrix[$k][$i],
         //         ]);

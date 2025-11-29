@@ -2,7 +2,6 @@ import { authAPI, showSuccess, showError, showLoading, closeLoading } from '../a
 import Swal from 'sweetalert2';
 
 let currentUser = null;
-let currentDecisionMaker = null;
 
 async function loadProfile() {
     try {
@@ -10,10 +9,8 @@ async function loadProfile() {
         const response = await authAPI.getCurrentUser();
         
         currentUser = response.data.data.user;
-        currentDecisionMaker = response.data.data.decision_maker;
         
         renderProfile();
-        checkDecisionMakerStatus();
         
         closeLoading();
     } catch (error) {
@@ -44,44 +41,6 @@ function renderProfile() {
     document.getElementById('email').value = currentUser.email;
 }
 
-function checkDecisionMakerStatus() {
-    const card = document.getElementById('dmStatusCard');
-    const activeContent = document.getElementById('dmActiveContent');
-    const missingContent = document.getElementById('dmMissingContent');
-
-    if (currentUser.role !== 'decision_maker') {
-        card.classList.add('hidden');
-        return;
-    }
-
-    card.classList.remove('hidden');
-
-    if (currentDecisionMaker) {
-        activeContent.classList.remove('hidden');
-        missingContent.classList.add('hidden');
-        
-        // Update visual indicators
-        const weightPercent = (currentDecisionMaker.weight * 100).toFixed(0) + '%';
-        document.getElementById('weightDisplay').textContent = weightPercent;
-        document.getElementById('weightBar').style.width = weightPercent;
-    } else {
-        activeContent.classList.add('hidden');
-        missingContent.classList.remove('hidden');
-        
-        // Show Toast Notification
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'warning',
-            title: 'Action Required',
-            text: 'Please complete your Decision Maker profile data.',
-            showConfirmButton: false,
-            timer: 5000,
-            timerProgressBar: true
-        });
-    }
-}
-
 async function saveProfile() {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
@@ -108,10 +67,8 @@ async function saveProfile() {
         
         // Update local state
         currentUser = response.data.data.user;
-        currentDecisionMaker = response.data.data.decision_maker;
         
         renderProfile();
-        checkDecisionMakerStatus();
         
         // Clear password fields
         document.getElementById('password').value = '';
