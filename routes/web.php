@@ -15,7 +15,7 @@ Route::get('/', function () {
     return view('landing');
 })->name('landing');
 
-Route::middleware('')->group(function () {
+Route::middleware('auth:web')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
