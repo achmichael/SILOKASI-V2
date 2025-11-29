@@ -127,9 +127,30 @@ class CalculationController extends Controller
     public function calculateAll()
     {
         try {
+            // Validasi prerequisite data
+            $this->validatePrerequisiteData();
+            
             $ahpResult = $this->ahpService->processAHP();
             $anpResult = $this->anpService->processANP();
-            $wpResult = $this->wpService->processWP();
+            
+            // Calculate WP for each Decision Maker
+            $decisionMakers = \App\Models\User::decisionMakers()->orderBy('id')->get();
+            $wpResults = [];
+            
+            foreach ($decisionMakers as $dm) {
+                try {
+                    $wpResult = $this->wpService->processWPForDM($dm->id);
+                    $wpResults[$dm->id] = $wpResult;
+                    
+                    // Simpan Borda Points dari WP result
+                    $this->saveBordaPointsFromWP($dm->id, $wpResult);
+                } catch (\Exception $e) {
+                    throw new \Exception(
+                        "Failed to calculate WP for Decision Maker '{$dm->name}': " . $e->getMessage()
+                    );
+                }
+            }
+            
             $bordaResult = $this->bordaService->processBorda();
 
             return response()->json([
@@ -138,7 +159,7 @@ class CalculationController extends Controller
                 'data' => [
                     'ahp' => $ahpResult,
                     'anp' => $anpResult,
-                    'wp' => $wpResult,
+                    'wp_per_dm' => $wpResults,
                     'borda' => $bordaResult,
                 ],
             ]);
@@ -147,6 +168,78 @@ class CalculationController extends Controller
                 'success' => false,
                 'message' => 'Calculation failed: ' . $e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Validasi prerequisite data sebelum kalkulasi
+     */
+    private function validatePrerequisiteData()
+    {
+        // Check Criteria
+        $criteriaCount = \App\Models\Criteria::count();
+        if ($criteriaCount === 0) {
+            throw new \Exception('No criteria found. Please add criteria first.');
+        }
+
+        // Check Alternatives
+        $alternativesCount = \App\Models\Alternative::count();
+        if ($alternativesCount === 0) {
+            throw new \Exception('No alternatives found. Please add alternatives first.');
+        }
+
+        // Check Decision Makers
+        $dmCount = \App\Models\User::decisionMakers()->count();
+        if ($dmCount === 0) {
+            throw new \Exception('No decision makers found. Please add decision makers first.');
+        }
+
+        // Check Pairwise Comparisons
+        $pairwiseCount = \App\Models\PairwiseComparison::count();
+        if ($pairwiseCount === 0) {
+            throw new \Exception('No pairwise comparisons found. Please input AHP pairwise comparison matrix first.');
+        }
+
+        // Check ANP Interdependencies
+        $anpCount = \App\Models\AnpInterdependency::count();
+        if ($anpCount === 0) {
+            throw new \Exception('No ANP interdependencies found. Please input ANP interdependency matrix first.');
+        }
+
+        // Check Alternative Ratings
+        $ratingsCount = \App\Models\AlternativeRating::count();
+        if ($ratingsCount === 0) {
+            throw new \Exception('No alternative ratings found. Please ensure all decision makers have submitted their ratings first.');
+        }
+
+        // Validate each DM has ratings
+        $decisionMakers = \App\Models\User::decisionMakers()->get();
+        foreach ($decisionMakers as $dm) {
+            $dmRatingsCount = \App\Models\AlternativeRating::where('user_id', $dm->id)->count();
+            if ($dmRatingsCount === 0) {
+                throw new \Exception(
+                    "Decision Maker '{$dm->name}' has not submitted any ratings. " .
+                    "Please ensure all decision makers complete their ratings before calculating."
+                );
+            }
+        }
+    }
+
+    /**
+     * Simpan Borda Points dari hasil WP
+     */
+    private function saveBordaPointsFromWP($dmId, $wpResult)
+    {
+        // Hapus data lama
+        \App\Models\BordaPoint::where('user_id', $dmId)->delete();
+
+        // Simpan borda points baru
+        foreach ($wpResult['alternatives'] as $alt) {
+            \App\Models\BordaPoint::create([
+                'user_id' => $dmId,
+                'alternative_id' => $alt['id'],
+                'points' => $alt['borda_point'],
+            ]);
         }
     }
 
@@ -188,6 +281,49 @@ class CalculationController extends Controller
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 404);
+        }
+    }
+
+    /**
+     * Dapatkan hasil Borda untuk decision maker
+     */
+    public function getBordaResults()
+    {
+        try {
+            // Ambil semua BordaPoint dengan relasi alternative
+            $bordaPoints = \App\Models\BordaPoint::with('alternative')
+                ->select('alternative_id', \DB::raw('SUM(points) as total_points'))
+                ->groupBy('alternative_id')
+                ->orderBy('total_points', 'desc')
+                ->get();
+
+            if ($bordaPoints->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Borda points have not been calculated yet',
+                ], 404);
+            }
+
+            // Format hasil
+            $results = $bordaPoints->map(function ($item, $index) {
+                return [
+                    'rank' => $index + 1,
+                    'alternative_id' => $item->alternative_id,
+                    'alternative_name' => $item->alternative->name,
+                    'alternative_code' => $item->alternative->code,
+                    'total_points' => $item->total_points,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $results,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }
