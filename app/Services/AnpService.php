@@ -38,7 +38,7 @@ class AnpService
     /**
      * Build matriks interdependensi dari database
      */
-    public function buildInterdependencyMatrix(): array
+    public function buildInterdependencyMatrix($userId = null): array
     {
         $criteria = Criteria::orderBy('id')->get();
         $n = $criteria->count();
@@ -46,7 +46,11 @@ class AnpService
         // Inisialisasi matriks dengan 0
         $matrix = array_fill(0, $n, array_fill(0, $n, 0.0));
 
-        $interdependencies = AnpInterdependency::all();
+        $query = AnpInterdependency::query();
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+        $interdependencies = $query->get();
         
         foreach ($interdependencies as $interdependency) {
             $i = $criteria->search(fn($c) => $c->id == $interdependency->criteria_i);
@@ -63,22 +67,25 @@ class AnpService
     /**
      * Proses ANP: ambil bobot AHP, kalikan dengan matriks interdependensi
      */
-    public function processANP(): array
+    public function processANP($userId = null): array
     {
         // Ambil hasil AHP terakhir
-        $ahpResult = \App\Models\CalculationResult::where('method', 'AHP')
+        $method = $userId ? 'AHP_DM_' . $userId : 'AHP';
+        $ahpResult = \App\Models\CalculationResult::where('method', $method)
             ->latest('calculated_at')
             ->first();
 
         if (!$ahpResult) {
-            throw new \Exception('AHP calculation not found. Please run AHP first.');
+            // Fallback to global AHP if specific not found (optional, but safer to fail if strict)
+            // Or maybe we should just fail.
+            throw new \Exception("AHP calculation not found for method {$method}. Please run AHP first.");
         }
 
         $ahpData = $ahpResult->data;
         $ahpWeights = $ahpData['weights'];
 
         // Build matriks interdependensi
-        $interdependencyMatrix = $this->buildInterdependencyMatrix();
+        $interdependencyMatrix = $this->buildInterdependencyMatrix($userId);
 
         // Hitung ANP
         $result = $this->calculateANP($interdependencyMatrix, $ahpWeights);
@@ -98,8 +105,9 @@ class AnpService
         $result['interdependency_matrix'] = $interdependencyMatrix;
 
         // Simpan ke database
+        $saveMethod = $userId ? 'ANP_DM_' . $userId : 'ANP';
         \App\Models\CalculationResult::create([
-            'method' => 'ANP',
+            'method' => $saveMethod,
             'data' => $result,
             'calculated_at' => now(),
         ]);

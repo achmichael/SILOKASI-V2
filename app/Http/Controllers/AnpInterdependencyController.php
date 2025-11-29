@@ -4,16 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Models\AnpInterdependency;
 use App\Models\Criteria;
+use App\Services\AnpService;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AnpInterdependencyController extends Controller
 {
+    protected $anpService;
+
+    public function __construct(AnpService $anpService)
+    {
+        $this->anpService = $anpService;
+    }
+
     /**
      * Tampilkan semua interdependensi ANP
      */
     public function index()
     {
-        $interdependencies = AnpInterdependency::with(['criteriaI', 'criteriaJ'])->get();
+        $user = JWTAuth::parseToken()->authenticate();
+        $userId = $user->id;
+        $interdependencies = AnpInterdependency::with(['criteriaI', 'criteriaJ'])
+            ->where('user_id', $userId)
+            ->get();
         
         return response()->json([
             'success' => true,
@@ -33,6 +46,8 @@ class AnpInterdependencyController extends Controller
         $criteria = Criteria::orderBy('id')->get();
         $n = $criteria->count();
         $matrix = $validated['matrix'];
+        $user = JWTAuth::parseToken()->authenticate();
+        $userId = $user->id;
 
         // Validasi ukuran matriks
         if (count($matrix) !== $n) {
@@ -42,13 +57,14 @@ class AnpInterdependencyController extends Controller
             ], 400);
         }
 
-        // Hapus data lama
-        AnpInterdependency::truncate();
+        // Hapus data lama user ini
+        AnpInterdependency::where('user_id', $userId)->delete();
 
         // Simpan seluruh matriks
         for ($i = 0; $i < $n; $i++) {
             for ($j = 0; $j < $n; $j++) {
                 AnpInterdependency::create([
+                    'user_id' => $userId,
                     'criteria_i' => $criteria[$i]->id,
                     'criteria_j' => $criteria[$j]->id,
                     'value' => $matrix[$i][$j],
@@ -56,9 +72,20 @@ class AnpInterdependencyController extends Controller
             }
         }
 
+        // Calculate ANP immediately
+        try {
+            $this->anpService->processANP($userId);
+        } catch (\Exception $e) {
+            // If AHP is not found, we might want to warn the user but still save the matrix
+            return response()->json([
+                'success' => true,
+                'message' => 'ANP matrix saved, but calculation failed: ' . $e->getMessage(),
+            ], 201);
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'ANP interdependency matrix saved successfully',
+            'message' => 'ANP interdependency matrix saved and calculated successfully',
         ], 201);
     }
 }

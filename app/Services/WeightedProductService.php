@@ -216,13 +216,22 @@ class WeightedProductService
         // Check if DM has provided any ratings
         $ratingsCount = AlternativeRating::where('user_id', $dmId)->count();
         
-        // Ambil hasil ANP terakhir
-        $anpResult = \App\Models\CalculationResult::where('method', 'ANP')
+        // Ambil hasil ANP terakhir untuk DM ini
+        $method = 'ANP_DM_' . $dmId;
+        $anpResult = \App\Models\CalculationResult::where('method', $method)
             ->latest('calculated_at')
             ->first();
 
         if (!$anpResult) {
-            throw new \Exception('ANP calculation not found. Please run ANP first.');
+            // Fallback to global ANP if specific not found (optional)
+            // But in multi-DM, we expect specific ANP
+             $anpResult = \App\Models\CalculationResult::where('method', 'ANP')
+                ->latest('calculated_at')
+                ->first();
+            
+             if (!$anpResult) {
+                throw new \Exception("ANP calculation not found for DM {$dmId} or global. Please run ANP first.");
+             }
         }
 
         $anpData = $anpResult->data;

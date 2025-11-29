@@ -6,6 +6,7 @@ use App\Models\PairwiseComparison;
 use App\Models\Criteria;
 use App\Services\AhpService;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class PairwiseComparisonController extends Controller
 {
@@ -21,7 +22,11 @@ class PairwiseComparisonController extends Controller
      */
     public function index()
     {
-        $comparisons = PairwiseComparison::with(['criteriaI', 'criteriaJ'])->get();
+        $user = JWTAuth::parseToken()->authenticate();
+        $userId = $user->id;
+        $comparisons = PairwiseComparison::with(['criteriaI', 'criteriaJ'])
+            ->where('user_id', $userId)
+            ->get();
         
         return response()->json([
             'success' => true,
@@ -41,11 +46,15 @@ class PairwiseComparisonController extends Controller
             'comparisons.*.value' => 'required|numeric',
         ]);
 
-        // Hapus data lama
-        PairwiseComparison::truncate();
+        $user = JWTAuth::parseToken()->authenticate();
+        $userId = $user->id;
+
+        // Hapus data lama user ini
+        PairwiseComparison::where('user_id', $userId)->delete();
 
         // Simpan data baru
         foreach ($validated['comparisons'] as $comparison) {
+            $comparison['user_id'] = $userId;
             PairwiseComparison::create($comparison);
         }
 
@@ -67,6 +76,8 @@ class PairwiseComparisonController extends Controller
         $criteria = Criteria::orderBy('id')->get();
         $n = $criteria->count();
         $matrix = $validated['matrix'];
+        $user = JWTAuth::parseToken()->authenticate();
+        $userId = $user->id;
 
         // Validasi ukuran matriks
         if (count($matrix) !== $n) {
@@ -76,8 +87,8 @@ class PairwiseComparisonController extends Controller
             ], 400);
         }
 
-        // Hapus data lama
-        PairwiseComparison::truncate();
+        // Hapus data lama user ini
+        PairwiseComparison::where('user_id', $userId)->delete();
 
         // Simpan matriks (hanya upper triangle, karena sisanya reciprocal)
         for ($i = 0; $i < $n; $i++) {
@@ -85,6 +96,7 @@ class PairwiseComparisonController extends Controller
                 if ($i === $j) continue; // Skip diagonal
                 
                 PairwiseComparison::create([
+                    'user_id' => $userId,
                     'criteria_i' => $criteria[$i]->id,
                     'criteria_j' => $criteria[$j]->id,
                     'value' => $matrix[$i][$j],
@@ -92,12 +104,12 @@ class PairwiseComparisonController extends Controller
             }
         }
 
-        // Calculate consistency immediately
-        $calculationResult = $this->ahpService->calculateAHP($matrix);
+        // Calculate consistency immediately and save result
+        $calculationResult = $this->ahpService->processAHP($userId);
 
         return response()->json([
             'success' => true,
-            'message' => 'Pairwise comparison matrix saved successfully',
+            'message' => 'Pairwise comparison matrix saved and calculated successfully',
             'data' => [
                 'consistency_ratio' => $calculationResult['cr'],
                 'consistency_index' => $calculationResult['ci'],

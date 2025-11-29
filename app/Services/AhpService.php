@@ -124,13 +124,17 @@ class AhpService
     /**
      * Build matriks perbandingan berpasangan dari database
      */
-    public function buildPairwiseMatrix(): array
+    public function buildPairwiseMatrix($userId = null): array
     {
         $criteria = Criteria::orderBy('id')->get();
         $n = $criteria->count();
         $matrix = array_fill(0, $n, array_fill(0, $n, 1.0));
 
-        $comparisons = PairwiseComparison::all();
+        $query = PairwiseComparison::query();
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+        $comparisons = $query->get();
         
         foreach ($comparisons as $comparison) {
             $i = $criteria->search(fn($c) => $c->id == $comparison->criteria_i);
@@ -151,9 +155,9 @@ class AhpService
     /**
      * Hitung AHP dari database dan simpan hasilnya
      */
-    public function processAHP(): array
+    public function processAHP($userId = null): array
     {
-        $matrix = $this->buildPairwiseMatrix();
+        $matrix = $this->buildPairwiseMatrix($userId);
         $result = $this->calculateAHP($matrix);
         
         // Tambahkan mapping kriteria
@@ -168,8 +172,9 @@ class AhpService
         })->toArray();
 
         // Simpan ke database
+        $method = $userId ? 'AHP_DM_' . $userId : 'AHP';
         \App\Models\CalculationResult::create([
-            'method' => 'AHP',
+            'method' => $method,
             'data' => $result,
             'calculated_at' => now(),
         ]);

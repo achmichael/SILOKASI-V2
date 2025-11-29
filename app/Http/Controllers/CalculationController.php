@@ -7,6 +7,7 @@ use App\Services\AnpService;
 use App\Services\WeightedProductService;
 use App\Services\BordaService;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class CalculationController extends Controller
 {
@@ -33,7 +34,9 @@ class CalculationController extends Controller
     public function calculateAHP()
     {
         try {
-            $result = $this->ahpService->processAHP();
+            $user = JWTAuth::parseToken()->authenticate();
+            $userId = $user->id;
+            $result = $this->ahpService->processAHP($userId);
 
             return response()->json([
                 'success' => true,
@@ -54,7 +57,9 @@ class CalculationController extends Controller
     public function calculateANP()
     {
         try {
-            $result = $this->anpService->processANP();
+            $user = JWTAuth::parseToken()->authenticate();
+            $userId = $user->id;
+            $result = $this->anpService->processANP($userId);
 
             return response()->json([
                 'success' => true,
@@ -72,20 +77,15 @@ class CalculationController extends Controller
     /**
      * Hitung Weighted Product
      */
-    public function calculateWP(Request $request)
+    public function calculateWP()
     {
         try {
-            $dmId = $request->query('dm_id');
+            $user = JWTAuth::parseToken()->authenticate();
+            $dmId = $user->id;
             
-            if ($dmId) {
-                // Hitung WP untuk Decision Maker tertentu
-                $result = $this->wpService->processWPForDM($dmId);
-                $message = 'Weighted Product calculation completed for DM ' . $dmId;
-            } else {
-                // Hitung WP default (tanpa DM)
-                $result = $this->wpService->processWP();
-                $message = 'Weighted Product calculation completed';
-            }
+            // Hitung WP untuk Decision Maker tertentu
+            $result = $this->wpService->processWPForDM($dmId);
+            $message = 'Weighted Product calculation completed for DM ' . $dmId;
 
             return response()->json([
                 'success' => true,
@@ -130,23 +130,32 @@ class CalculationController extends Controller
             // Validasi prerequisite data
             $this->validatePrerequisiteData();
             
-            $ahpResult = $this->ahpService->processAHP();
-            $anpResult = $this->anpService->processANP();
-            
-            // Calculate WP for each Decision Maker
             $decisionMakers = \App\Models\User::decisionMakers()->orderBy('id')->get();
+            $ahpResults = [];
+            $anpResults = [];
             $wpResults = [];
             
             foreach ($decisionMakers as $dm) {
                 try {
+                    // 1. Calculate AHP for DM
+                    $ahpResult = $this->ahpService->processAHP($dm->id);
+                    $ahpResults[$dm->id] = $ahpResult;
+
+                    // 2. Calculate ANP for DM
+                    $anpResult = $this->anpService->processANP($dm->id);
+                    $anpResults[$dm->id] = $anpResult;
+
+                    // 3. Calculate WP for DM
                     $wpResult = $this->wpService->processWPForDM($dm->id);
                     $wpResults[$dm->id] = $wpResult;
                     
                     // Simpan Borda Points dari WP result
                     $this->saveBordaPointsFromWP($dm->id, $wpResult);
                 } catch (\Exception $e) {
+                    // Log error but continue for other DMs? Or fail?
+                    // For now, let's throw to ensure data integrity
                     throw new \Exception(
-                        "Failed to calculate WP for Decision Maker '{$dm->name}': " . $e->getMessage()
+                        "Failed to calculate for Decision Maker '{$dm->name}': " . $e->getMessage()
                     );
                 }
             }
@@ -157,8 +166,8 @@ class CalculationController extends Controller
                 'success' => true,
                 'message' => 'All calculations completed successfully',
                 'data' => [
-                    'ahp' => $ahpResult,
-                    'anp' => $anpResult,
+                    'ahp_per_dm' => $ahpResults,
+                    'anp_per_dm' => $anpResults,
                     'wp_per_dm' => $wpResults,
                     'borda' => $bordaResult,
                 ],
@@ -194,32 +203,30 @@ class CalculationController extends Controller
             throw new \Exception('No decision makers found. Please add decision makers first.');
         }
 
-        // Check Pairwise Comparisons
-        $pairwiseCount = \App\Models\PairwiseComparison::count();
-        if ($pairwiseCount === 0) {
-            throw new \Exception('No pairwise comparisons found. Please input AHP pairwise comparison matrix first.');
-        }
-
-        // Check ANP Interdependencies
-        $anpCount = \App\Models\AnpInterdependency::count();
-        if ($anpCount === 0) {
-            throw new \Exception('No ANP interdependencies found. Please input ANP interdependency matrix first.');
-        }
-
-        // Check Alternative Ratings
-        $ratingsCount = \App\Models\AlternativeRating::count();
-        if ($ratingsCount === 0) {
-            throw new \Exception('No alternative ratings found. Please ensure all decision makers have submitted their ratings first.');
-        }
-
-        // Validate each DM has ratings
+        // Validate each DM has data
         $decisionMakers = \App\Models\User::decisionMakers()->get();
         foreach ($decisionMakers as $dm) {
+            // Check Pairwise Comparisons
+            $pairwiseCount = \App\Models\PairwiseComparison::where('user_id', $dm->id)->count();
+            if ($pairwiseCount === 0) {
+                throw new \Exception(
+                    "Decision Maker '{$dm->name}' has not submitted AHP pairwise comparisons."
+                );
+            }
+
+            // Check ANP Interdependencies
+            $anpCount = \App\Models\AnpInterdependency::where('user_id', $dm->id)->count();
+            if ($anpCount === 0) {
+                throw new \Exception(
+                    "Decision Maker '{$dm->name}' has not submitted ANP interdependencies."
+                );
+            }
+
+            // Check Alternative Ratings
             $dmRatingsCount = \App\Models\AlternativeRating::where('user_id', $dm->id)->count();
             if ($dmRatingsCount === 0) {
                 throw new \Exception(
-                    "Decision Maker '{$dm->name}' has not submitted any ratings. " .
-                    "Please ensure all decision makers complete their ratings before calculating."
+                    "Decision Maker '{$dm->name}' has not submitted any ratings."
                 );
             }
         }
