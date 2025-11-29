@@ -13,10 +13,17 @@ class CalculationResult extends Model
         'method',
         'data',
         'calculated_at',
+        'user_id',
     ];
 
     protected $casts = [
         'data' => 'array',
         'calculated_at' => 'datetime',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

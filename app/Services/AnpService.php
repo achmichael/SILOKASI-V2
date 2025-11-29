@@ -109,6 +109,7 @@ class AnpService
         \App\Models\CalculationResult::create([
             'method' => $saveMethod,
             'data' => $result,
+            'user_id' => $userId,
             'calculated_at' => now(),
         ]);
 

@@ -175,6 +175,7 @@ class AhpService
         $method = $userId ? 'AHP_DM_' . $userId : 'AHP';
         \App\Models\CalculationResult::create([
             'method' => $method,
+            'user_id' => $userId,
             'data' => $result,
             'calculated_at' => now(),
         ]);

@@ -88,6 +88,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(PairwiseComparison::class);
     }
 
+    public function calculationResults()
+    {
+        return $this->hasMany(CalculationResult::class);
+    }
+
     /**
      * Get ANP interdependencies for this user
      */

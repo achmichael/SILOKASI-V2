@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('calculation_results', function (Blueprint $table) {
             $table->id();
             $table->string('method'); // AHP, ANP, WP, BORDA
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->json('data'); // Store calculation results as JSON
             $table->timestamp('calculated_at');
             $table->timestamps();
