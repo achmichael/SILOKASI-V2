@@ -160,16 +160,16 @@
                             </div>
                             <span>3. Voting/Ratings</span>
                         </a> --}}
-                        @if (Auth::check() && Auth::user()->role === 'decision_maker')
+                        @if (Auth::check() && Auth::user()->role === 'land_geotech' || Auth::user()->role === 'infrastructure' || Auth::user()->role === 'manager')
                             <a href="{{ route('my-results.index') }}"
                                 class="relative flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors {{ request()->routeIs('my-results.*') ? 'active' : 'text-slate-600' }}">
                                 <div
                                     class="w-1.5 h-1.5 rounded-full bg-slate-300 {{ request()->routeIs('my-results.*') ? '!bg-primary-600 ring-4 ring-primary-100' : '' }}">
                                 </div>
-                                <span>4. My Rankings</span>
+                                <span>3. My Rankings</span>
                             </a>
                         @endif
-                        @if (Auth::check() && Auth::user()->role === 'admin')
+                        @if (Auth::check() && Auth::user()->role === 'manager')
                             <a href="{{ route('results.index') }}"
                                 class="relative flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors {{ request()->routeIs('results.*') ? 'active' : 'text-slate-600' }}">
                                 <div
