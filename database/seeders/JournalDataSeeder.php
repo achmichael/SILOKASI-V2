@@ -60,12 +60,13 @@ class JournalDataSeeder extends Seeder
          * 3. Seed Users (DM1, DM2, DM3)
          * ========================================================== */
         $dmUsers = [];
+        $roles = ['land_geotech', 'infrastructure', 'manager'];
         for ($i=1; $i<=3; $i++) {
             $dmUsers[] = User::create([
                 'name' => "DM $i",
                 'email' => "dm$i@example.com",
                 'password' => bcrypt('password'), // Sebaiknya gunakan Hash::make()
-                'role' => 'decision_maker'
+                'role' => $roles[$i-1]
             ]);
         }
 
