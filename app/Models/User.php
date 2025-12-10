@@ -53,7 +53,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function scopeDecisionMakers($query)
     {
-        return $query->where('role', 'decision_maker');
+        return $query->whereIn('role', ['land_geotech', 'infrastucture', 'manager']);
     }
 
     /**
@@ -61,7 +61,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function isDecisionMaker()
     {
-        return $this->role === 'decision_maker';
+        return $this->role === 'land_geotech' || $this->role === 'infrastucture' || $this->role === 'manager';
     }
 
     /**
