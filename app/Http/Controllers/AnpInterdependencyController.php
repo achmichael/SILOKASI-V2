@@ -43,12 +43,16 @@ class AnpInterdependencyController extends Controller
         ]);
 
         $criteria = Criteria::orderBy('id')->get();
+        // mengambil jumlah kriteria
         $n = $criteria->count();
+        // mengambil matriks dari request
         $matrix = $validated['matrix'];
+        // mengambil identitas user yang melakukan request
         $user = JWTAuth::parseToken()->authenticate();
+        // mengambil id user (DM)
         $userId = $user->id;
 
-        // Validasi ukuran matriks
+        // Validasi ukuran matriks harus berukuran 8x8 (sesuai jumlah kriteria)
         if (count($matrix) !== $n) {
             return response()->json([
                 'success' => false,
@@ -56,10 +60,10 @@ class AnpInterdependencyController extends Controller
             ], 400);
         }
 
-        // Hapus data lama user ini
+        // hapus data matrix yang lama
         AnpInterdependency::where('user_id', $userId)->delete();
 
-        // Simpan seluruh matriks
+        // Simpan seluruh matriks ke dalam ANP interdependency table
         for ($i = 0; $i < $n; $i++) {
             for ($j = 0; $j < $n; $j++) {
                 AnpInterdependency::create([
@@ -71,7 +75,7 @@ class AnpInterdependencyController extends Controller
             }
         }
 
-        // Calculate ANP immediately
+        // Melakukan pemrosesan ANP setelah matriks disimpan
         try {
             $this->anpService->processANP($userId);
         } catch (\Exception $e) {

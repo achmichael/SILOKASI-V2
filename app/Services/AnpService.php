@@ -72,28 +72,26 @@ class AnpService
     {
         // Ambil hasil AHP terakhir
         $method = $userId ? 'AHP_DM_' . $userId : 'AHP';
+        // Ambil hasil kalkulasi AHP DM yang melakukan perhitungan ANP
         $ahpResult = \App\Models\CalculationResult::where('method', $method)
             ->where('user_id', $userId)
             ->latest('calculated_at')
             ->first();
-
+        // return error jika tidak ditemukan hasil AHP, dikarenakan ANP bergantung pada AHP
         if (!$ahpResult) {
-            // Fallback to global AHP if specific not found (optional, but safer to fail if strict)
-            // Or maybe we should just fail.
             throw new \Exception("AHP calculation not found for method {$method}. Please run AHP first.");
         }
-
+        // ambil data hasil perhitungan AHP
         $ahpData = $ahpResult->data;
+        // ambil bobot AHP
         $ahpWeights = $ahpData['weights'];
-
-        // Build matriks interdependensi
+        // bangun matriks interdependensi ANP
         $interdependencyMatrix = $this->buildInterdependencyMatrix($userId);
-
-        // Hitung ANP
+        // hitung bobot ANP
         $result = $this->calculateANP($interdependencyMatrix, $ahpWeights);
-        Log::info("ANP Weights calculated: " . json_encode($result['weights']));
-        // Tambahkan mapping kriteria
+        // ambil data kriteria untuk hasil
         $criteria = Criteria::orderBy('id')->get();
+        // susun hasil dengan kriteria
         $result['criteria'] = $criteria->map(function($c, $index) use ($result, $ahpWeights) {
             return [
                 'id' => $c->id,
@@ -103,10 +101,9 @@ class AnpService
                 'anp_weight' => $result['weights'][$index],
             ];
         })->toArray();
-
+        // ambil matriks interdependensi untuk hasil
         $result['interdependency_matrix'] = $interdependencyMatrix;
-
-        // Simpan ke database
+        // Simpan ke database 
         $saveMethod = $userId ? 'ANP_DM_' . $userId : 'ANP';
         \App\Models\CalculationResult::create([
             'method' => $saveMethod,
@@ -114,7 +111,6 @@ class AnpService
             'user_id' => $userId,
             'calculated_at' => now(),
         ]);
-
         return $result;
     }
 }

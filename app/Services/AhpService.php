@@ -37,7 +37,6 @@ class AhpService
     public function calculateAHP(array $pairwiseMatrix): array
     {
         $n = count($pairwiseMatrix);
-        
         // Step 1: Hitung perkalian setiap baris
         $rowProducts = [];
         for ($i = 0; $i < $n; $i++) {
@@ -47,39 +46,30 @@ class AhpService
             }
             $rowProducts[] = $product;
         }
-
         // Step 2: Hitung akar pangkat N
         $nthRoots = [];
         for ($i = 0; $i < $n; $i++) {
             $nthRoots[] = pow($rowProducts[$i], 1.0 / $n);
         }
-
         // Step 3: Normalisasi untuk mendapatkan Eigen Vector (W)
         $sumRoots = array_sum($nthRoots);
-        
         // Prevent division by zero
         if ($sumRoots == 0) {
             throw new \Exception('Sum of nth roots is zero. Please check pairwise comparison matrix.');
         }
-        
         $eigenVector = [];
         for ($i = 0; $i < $n; $i++) {
             $eigenVector[] = round($nthRoots[$i] / $sumRoots, 4);
         }
-
         // Step 4: Hitung λmax (lambda maksimum)
         $lambdaMax = $this->calculateLambdaMax($pairwiseMatrix, $eigenVector);
-
         // Step 5: Hitung Consistency Index (CI)
         $ci = $n > 1 ? ($lambdaMax - $n) / ($n - 1) : 0;
-
         // Step 6: Hitung Consistency Ratio (CR)
         $ri = self::RANDOM_INDEX[$n] ?? 1.41;
         $cr = $ri > 0 ? $ci / $ri : 0;
-
         // Konsisten jika CR < 0.1
         $isConsistent = $cr < 0.1;
-
         return [
             'weights' => $eigenVector,
             'lambda_max' => round($lambdaMax, 4),
@@ -160,7 +150,6 @@ class AhpService
         $matrix = $this->buildPairwiseMatrix($userId);
         $result = $this->calculateAHP($matrix);
         
-        // Tambahkan mapping kriteria
         $criteria = Criteria::orderBy('id')->get();
         $result['criteria'] = $criteria->map(function($c, $index) use ($result) {
             return [
@@ -171,7 +160,6 @@ class AhpService
             ];
         })->toArray();
 
-        // Simpan ke database
         $method = $userId ? 'AHP_DM_' . $userId : 'AHP';
         \App\Models\CalculationResult::create([
             'method' => $method,

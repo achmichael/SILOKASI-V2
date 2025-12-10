@@ -70,6 +70,15 @@
             color: #0284c7;
             border-right: 3px solid #0284c7;
         }
+
+        .text-gradient {
+            background: linear-gradient(to right, #f43f5e, #f97316, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
+        }
     </style>
 </head>
 
@@ -78,12 +87,10 @@
         <aside id="sidebar"
             class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
             <div class="h-20 flex items-center px-8 border-b border-slate-100">
-                <div class="flex items-center gap-3">
-                    <div class="bg-primary-600 p-2 rounded-lg text-white">
-                        <i data-lucide="layers" class="w-6 h-6"></i>
-                    </div>
+                <div class="flex items-center">
+                    <img src="/images/light_logo.png" alt="SILOKASI Logo" class="h-20 w-auto object-cover">
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">SILOKASI</h1>
+                        <h1 class="text-xl font-bold tracking-tight text-gradient font-display">SILOKASI</h1>
                         <p class="text-xs text-slate-400 font-medium tracking-wide">GDSS PLATFORM</p>
                     </div>
                 </div>
@@ -146,13 +153,13 @@
                             </div>
                             <span>2. ANP Network</span>
                         </a>
-                        <a href="{{ route('ratings.index') }}"
+                        {{-- <a href="{{ route('ratings.index') }}"
                             class="relative flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors {{ request()->routeIs('ratings.*') ? 'active' : 'text-slate-600' }}">
                             <div
                                 class="w-1.5 h-1.5 rounded-full bg-slate-300 {{ request()->routeIs('ratings.*') ? '!bg-primary-600 ring-4 ring-primary-100' : '' }}">
                             </div>
                             <span>3. Voting/Ratings</span>
-                        </a>
+                        </a> --}}
                         @if (Auth::check() && Auth::user()->role === 'decision_maker')
                             <a href="{{ route('my-results.index') }}"
                                 class="relative flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors {{ request()->routeIs('my-results.*') ? 'active' : 'text-slate-600' }}">
